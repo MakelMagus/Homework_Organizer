@@ -1,0 +1,38 @@
+/*
+function myFunction() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheets()[0];
+  var range = sheet.getRange(3, 1, 1, 7);
+  var values = range.getValues();
+
+  // Print values from a 3x3 box.
+  for (var row in values) {
+    for (var col in values[row]) {
+      Logger.log(values[row][col]);
+    }
+  }
+}
+*/
+
+
+function do_nothing(){
+  return null;
+}
+
+function current_datetime(){
+  date = new Date();
+  var currentTime = date.toLocaleTimeString(); // "12:35 PM", for instance
+
+  return currentTime;
+}
+
+function cell_date(){
+  data_from("G"+3).filter
+}
+
+Logger.log(cell_date());
+Logger.log(current_datetime());
+
+
+
+

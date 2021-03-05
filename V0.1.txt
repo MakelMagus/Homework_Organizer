@@ -1,0 +1,66 @@
+//Return all values from the spreadsheet
+function sheet_values(){
+  var sheet_values = SpreadsheetApp.getActiveSheet().getDataRange().getValues();
+  return sheet_values;
+}
+
+//Return the sheet itself
+function sheet(){
+    return SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+}
+
+//Return all values from a specific column
+function column(number){
+  //The column where data will be stored, and a counter to properly occupy different spaces
+  var column = [];
+  var counter = 0;
+  //for every value of the sheet, I write the one on the specified column into the vector
+  sheet_values().forEach( function(row)
+  {
+    column[counter] = row[number];
+    counter++;
+  });
+
+  return column;
+}
+
+//Return the data from a specific cell
+function data_from(cell){
+  return sheet().getRange(cell).getValues();
+}
+
+//Just a re-naming for convenience's sake.
+//If I knew how, i'd make this be a "description" method for column instead
+function type_column(){
+  return column(1);
+}
+
+//cambia el color basándose en la columna "tipo"
+function change_background(){
+  //Used for flags
+  var eval = 0;
+  var tp = 0;
+  var column_number = 1;
+  
+  //lee todos los datos de la columna "tipo", 1 por 1
+  column(1).forEach( function(row)
+  {
+    switch(row)
+    {
+      case "Evaluación":
+      eval++;
+
+      //Si la evaluación se completó
+      if (data_from("D" + column_number) == "Pasada")
+      {
+        sheet().getRange(column_number,1,1,8).setBackgroundRGB(0,255,255);
+      }
+      /*
+      case "TP":
+      tp++;
+      sheet().getRange(column_number,1,1,8).setBackgroundRGB(183,183,183);
+      */
+    }
+    column_number++;
+  });
+}
