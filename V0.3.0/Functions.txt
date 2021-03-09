@@ -1,0 +1,91 @@
+//Return all values from the spreadsheet
+function sheetValues(){
+  var sheet_values = SpreadsheetApp.getActiveSheet().getDataRange().getValues();
+  return sheet_values;
+}
+
+//Return the sheet itself. Whatever this means, it's needed for some functions.
+function sheet(){
+    return SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+}
+
+//Return all values from a specific column
+function dataFromColumn(number){
+  //The column where data will be stored, and a counter to properly occupy different spaces
+  var column = [];
+  var counter = 0;
+  //for every row of the sheet, I write the value on the specified column into the vector
+  sheetValues().forEach( function(row)
+  {
+    column[counter] = row[number];
+    counter++;
+  });
+
+  return column;
+}
+
+  //Returns the data from a specific cell. Can be specified to return a string.
+function dataFromCell(cell, asString){
+  if (asString == "yes")
+  {
+    return sheet().getRange(cell).getValues().toString();
+  } else { return sheet().getRange(cell).getValues(); }
+}
+
+  //Returns the date in the self-made string format of 'month'/'day', this way it can somehow be compared without issues.
+function currentDate(){
+  day = new Date().getDate();
+  month = new Date().getMonth() + 1;
+  return month + "/" + day;
+}
+
+  //Simple comparator that returns bigger value, there should be a better way to do it.
+function getBigger(a, b)
+{
+  if (a > b)
+  {
+    return a;
+  } else if (b > a)
+  {
+    return b;
+  } else return 0;
+}
+
+//Just a re-naming for convenience's sake.
+//If I knew how, i'd make this be a method for column instead
+//Also, it should eventually return the column based on the name, example below:
+function type_column(){
+  return column(1);
+}
+function colorCode_column(){
+  return column(9);
+}
+
+function getCellFormat(row, column){
+  
+  var format = [];
+
+  format[0] = sheet().getRange(row, column).getFontColor();
+  format[1] = sheet().getRange(row, column).getFontSize();
+  format[2] = sheet().getRange(row, column).getFontFamily();
+  format[3] = sheet().getRange(row, column).getFontLine();
+  format[4] = sheet().getRange(row, column).getFontWeight();
+  format[5] = sheet().getRange(row, column).getFontStyle();
+  format[6] = sheet().getRange(row, column).getBackground();
+
+  return format;
+}
+
+function setCellsFormat(row, column, row_amount, column_amount, format = [7]){
+  sheet().getRange(row, column, row_amount, column_amount).setFontColor(format[0]);
+  sheet().getRange(row, column, row_amount, column_amount).setFontSize(format[1]);
+  sheet().getRange(row, column, row_amount, column_amount).setFontFamily(format[2]);
+  sheet().getRange(row, column, row_amount, column_amount).setFontLine(format[3]);
+  sheet().getRange(row, column, row_amount, column_amount).setFontWeight(format[4]);
+  sheet().getRange(row, column, row_amount, column_amount).setFontStyle(format[5]);
+  sheet().getRange(row, column, row_amount, column_amount).setBackground(format[6]);
+}
+
+function setHomeworkFormat(row, format_y, format_x){
+  setCellsFormat(row, 1, 1, 8, getCellFormat(format_y, format_x))
+}

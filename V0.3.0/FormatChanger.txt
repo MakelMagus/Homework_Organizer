@@ -1,0 +1,132 @@
+//Modifies the format based on the format of specified cells
+function changeFormat(){
+  //Used for flags
+  var eval = 0;
+  var tp = 0;
+  //Used as counter, to keep track of what row is being modified
+  var row_depth = 1;
+  
+  //lee todos los datos de la columna "tipo", 1 por 1
+  column(1).forEach( function(row_data)
+  {
+    //Inicia un switch con cada dato
+    switch(row_data)
+    {
+
+      
+      case "Evaluación":
+        eval++;
+
+
+        if(data_from("D" + row_depth) === "Aprobada")
+        {
+          Logger.log("El comparador debería funcionar");
+        }
+
+        switch (data_from("D" + row_depth).toString())
+        {
+          case "Aprobada":
+            //Set the homework cells to a pale-blue-cyan
+            setHomeworkFormat(row_depth, 12, 10);
+            break;
+
+          case "Estudiada":
+            //Set the homework cells to a pale-blue-cyan
+            setHomeworkFormat(row_depth, 13, 10);
+            break;
+
+          case "Estudiar":
+            //Set the homework cells to a pale-blue-cyan
+            setHomeworkFormat(row_depth, 14, 10);
+            break;
+
+          case "Retomar":
+            //Set the homework cells to a pale-blue-cyan
+            setHomeworkFormat(row_depth, 15, 10);
+            break;
+
+          case "Desaprobada":
+            //Set the homework cells to a pale-blue-cyan
+            setHomeworkFormat(row_depth, 16, 10);
+            break;
+        }
+      break;
+
+      /*
+      case "TP":
+        tp++;
+
+        //If it hasn't gone over the deadline yet
+        if (data_from("G" + row_depth) > current_datetime() ) {
+          switch (data_from("D" + row_depth))
+          {
+            
+            case "Corregido":
+              setHomeworkFormat(row_depth, 2, 10);
+            break;
+
+            case "Entregado":
+              setHomeworkFormat(row_depth, 3, 10);
+            break;
+
+            case "Terminado":
+              setHomeworkFormat(row_depth, 4, 10);
+            break;
+
+            case "En Proceso":
+              setHomeworkFormat(row_depth, 5, 10);
+            break;
+
+            case "A Comenzar":
+              setHomeworkFormat(row_depth, 6, 10);
+            break;
+          }
+        }
+        //if it already passed the deadline
+        else if (data_from("G" + row_depth) < current_datetime() ) {
+          switch (data_from("D" + row_depth))
+          {
+            
+            case "Enviado Tarde":
+              setHomeworkFormat(row_depth, 7, 10);
+            break;
+
+            case "A Rehacer":
+              setHomeworkFormat(row_depth, 8, 10);
+            break;
+
+            case "Tarde":
+              setHomeworkFormat(row_depth, 9, 10);
+            break;
+
+            case "Irrecuperable":
+              setHomeworkFormat(row_depth, 10, 10);
+            break;
+          }
+        }
+      */
+      case "Extra Work":
+        setHomeworkFormat(row_depth, 18, 10);
+        break;
+      
+      //TP, based on both time and status
+      /*
+      case "TP":
+        tp++;
+
+        if (data_from("G" + row_depth) >  ) {
+          //Set the TP cells to a light-green
+          setHomeworkFormat(row_depth, 3, 10);
+        }
+        break;
+      */      
+      
+      /* For the far future: Special cases
+      case "Finished Subject":
+      case "Meeting":
+      */
+
+    }
+    row_depth++;
+  });
+}
