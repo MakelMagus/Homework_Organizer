@@ -1,0 +1,145 @@
+//Modifies the format based on the format of specified cells
+function changeFormat(){
+  //Used for flags
+  var eval = 0;
+  var tp = 0;
+  //Used as counter, to keep track of what row is being modified
+  var row_depth = 1;
+  //Column locators
+  var color_code = locateTitleColumn("Color Code");
+  var type = locateTitleColumn("Tipo");
+  var status = locateTitleColumn("Status");
+  var deadline = locateTitleColumn("Plazo");
+  var sent = locateTitleColumn("Entregado");
+
+    //Repeat a code for all data from the column "type", 1 by 1.
+
+  dataFromColumn(type).forEach( function(row_data)
+  {
+        //Logger.log("/type/ = " + type + "; /row_data/ = " + row_data);
+      //Chech what that data is.
+    switch(row_data)
+    {
+        //If the type of assignment is an exam, then check its status
+      case "Evaluación":
+        eval++;
+
+          //A flag created to check the case and next switch work. Triple "=" checks that the type is also the same.
+        if(dataFromCell("D" + row_depth) === "Aprobada") {Logger.log("Entró al case");}
+        
+          //The switch that checks the status column of the homework row.
+        switch (dataFromCell("D" + row_depth).toString())
+        {
+            //And each case corresponds to a different status and color.
+          case "Aprobada":
+            //Format: pale-blue-cyan, normal text
+            setHomeworkFormat(row_depth, 12, color_code);
+            break;
+
+          case "Estudiada":
+            //Format: pale-gray, normal text
+            setHomeworkFormat(row_depth, 13, color_code);
+            break;
+
+          case "Estudiar":
+            //Format: gray, normal text
+            setHomeworkFormat(row_depth, 14, color_code);
+            break;
+
+          case "Retomar":
+            //Format: dark violet, white & bold 'Comfortaa' text
+            setHomeworkFormat(row_depth, 15, color_code);
+            break;
+
+          case "Desaprobada":
+            //Format: even darker purple, white & bold 'Comfortaa' text
+            setHomeworkFormat(row_depth, 16, color_code);
+            break;
+        }
+      break;
+
+      case "TP":
+        tp++;
+        if (dataFromCell("G" + row_depth) > currentDate)
+        {
+
+        }
+        break;
+      /*
+      case "TP":
+        tp++;
+
+        //If it hasn't gone over the deadline yet
+        if (dataFromCell("G" + row_depth) > current_datetime() ) {
+          switch (dataFromCell("D" + row_depth))
+          {
+            
+            case "Corregido":
+              setHomeworkFormat(row_depth, 2, 10);
+            break;
+
+            case "Entregado":
+              setHomeworkFormat(row_depth, 3, 10);
+            break;
+
+            case "Terminado":
+              setHomeworkFormat(row_depth, 4, 10);
+            break;
+
+            case "En Proceso":
+              setHomeworkFormat(row_depth, 5, 10);
+            break;
+
+            case "A Comenzar":
+              setHomeworkFormat(row_depth, 6, 10);
+            break;
+          }
+        }
+        //if it already passed the deadline
+        else if (dataFromCell("G" + row_depth) < current_datetime() ) {
+          switch (dataFromCell("D" + row_depth))
+          {
+            
+            case "Enviado Tarde":
+              setHomeworkFormat(row_depth, 7, 10);
+            break;
+
+            case "A Rehacer":
+              setHomeworkFormat(row_depth, 8, 10);
+            break;
+
+            case "Tarde":
+              setHomeworkFormat(row_depth, 9, 10);
+            break;
+
+            case "Irrecuperable":
+              setHomeworkFormat(row_depth, 10, 10);
+            break;
+          }
+        }
+      */
+      case "Extra Work":
+        setHomeworkFormat(row_depth, 18, 10);
+        break;
+      
+      //TP, based on both time and status
+      /*
+      case "TP":
+        tp++;
+
+        if (dataFromCell("G" + row_depth) >  ) {
+          //Set the TP cells to a light-green
+          setHomeworkFormat(row_depth, 3, 10);
+        }
+        break;
+      */      
+      
+      /* For the far future: Special cases
+      case "Finished Subject":
+      case "Meeting":
+      */
+
+    }
+    row_depth++;
+  });
+}
