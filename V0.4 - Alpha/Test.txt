@@ -1,0 +1,61 @@
+    //This ALL is jank / stuff used to atomize the errors / stuff that has no current use
+  
+  //Returns the current date, as in the amount of days that passed since the start of the year.
+function currentDay(){
+  day = new Date().getDate();
+  month = new Date().getMonth() + 1;
+  return monthToDays(month) + day;
+}
+  //Turns out months aren't exactly linear, so I need to get a spefific value for the amount of days on all months, and this is the least resource-heavy way of doing it I know.
+function monthToDays(month){
+  switch(month){
+    case 1:
+      return 31;
+    case 2:
+      return 59;
+    case 3:
+      return 90;
+    case 4:
+      return 120;
+    case 5:
+      return 151;
+    case 6:
+      return 181;
+    case 7:
+      return 212;
+    case 8:
+      return 243;
+    case 9:
+      return 273;
+    case 10:
+      return 303;
+    case 11:
+      return 334;
+    case 12:
+      return 365;
+  }
+}
+
+  // (solved) For when I had an issue of data translations between locateTitleColumn, dataFromColumn, and a few other stuff.
+function loggerFunction(){
+  var counter = 0;
+  //This gives "Materia" correctly
+  Logger.log(sheet().getRange(1, 1).getValues().toString());
+
+  //These all correctly give data from titles 'Materia', 'tipo', 'Quehacer', etc..
+  for (counter = 1; counter <= 10; counter++){
+    Logger.log(dataFromColumn(counter));
+  }
+
+  //After modifying the proper function, this should still give the same data as the above for() loop.
+  Logger.log(dataFromColumn(locateTitleColumn("Materia")));
+  Logger.log(dataFromColumn(locateTitleColumn("Tipo")));
+  Logger.log(dataFromColumn(locateTitleColumn("Quehacer")));
+  Logger.log(dataFromColumn(locateTitleColumn("Estado")));
+  Logger.log(dataFromColumn(locateTitleColumn("Recibido")));
+  Logger.log(dataFromColumn(locateTitleColumn("Entregado")));
+  Logger.log(dataFromColumn(locateTitleColumn("Plazo")));
+  Logger.log(dataFromColumn(locateTitleColumn("Descripción")));
+  Logger.log(dataFromColumn(locateTitleColumn("")));
+  Logger.log(dataFromColumn(locateTitleColumn("Color Code")));
+}
