@@ -6,6 +6,13 @@ Upcoming (in order):
 - Adding meetings as events in the calendar.
 
 
+
+0.5.x Small optimizations.
+- 0.5.0 Modified dataFrom (Cell, Row, and Column) functions so they're less messy. This seems to also slightly speed them up, but I'm not certain of this.
+- 0.5.1 Backup of a working v2 of the setHomeworkFormat function.
+- 0.5.2 Now the setHomeworkFormat does NOT call "getCellFormat" every time it's used.
+- 0.5.3 (Upcoming) changed setHomeworkFormat to setRowFormat, which allows for more versatility.
+
 0.4.0 ALPHA IS ON!
 - Now it modifies TP without any hiccups!
 - It also uses variables instead of calling entire functions multiple times to get the same number. 
