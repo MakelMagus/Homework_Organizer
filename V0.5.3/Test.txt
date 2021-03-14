@@ -1,0 +1,98 @@
+    //This ALL is jank / stuff used to atomize the errors / stuff that has no current use / stuff that is being worked-on
+
+  //Returns the current date, as in the amount of days that passed since the start of the year.
+function currentDay(){
+  day = new Date().getDate();
+  month = new Date().getMonth() + 1;
+  return monthToDays(month) + day;
+}
+  //Turns out months aren't exactly linear, so I need to get a spefific value for the amount of days on all months, and this is the least resource-heavy way of doing it I know.
+function monthToDays(month){
+  switch(month){
+    case 1:
+      return 31;
+    case 2:
+      return 59;
+    case 3:
+      return 90;
+    case 4:
+      return 120;
+    case 5:
+      return 151;
+    case 6:
+      return 181;
+    case 7:
+      return 212;
+    case 8:
+      return 243;
+    case 9:
+      return 273;
+    case 10:
+      return 303;
+    case 11:
+      return 334;
+    case 12:
+      return 365;
+  }
+}
+
+
+function loggerFunction_setHomeworkFormat_v2()
+{
+  format = getFormat();
+  setHomeworkFormat_v2(16, format[16]);
+}
+
+
+function loggerFunction_getFormat()
+{
+  format = [];
+  format = getFormat();
+  counter = 0;
+  for (counter = 1; counter < sheet().getLastRow; counter++)
+  {
+    
+    Logger.log(format[counter]);
+  }
+}
+
+
+  // For when the dataFromColumn (v2) function wasn't displaying the proper column. This helped locate the issue.
+function loggerFunction_dataFromColumn_v2() {
+  Logger.log(dataFromColumn(locateTitleColumn("Tipo")));
+  for (const data of dataFromColumn(locateTitleColumn("Tipo"))) {
+    Logger.log(data.toString());
+} }
+
+  // For the creation of the cell locator
+function loggerFunction_locateCell(){
+  Logger.log(locateCell("Color Code", "Desaprobada"));
+  Logger.log(dataFromCell(locateCell("Color Code", "Desaprobada"), "yes"));
+  Logger.log("dataFromColumn gives as data: /" + dataFromColumn(1) + "/");
+  Logger.log("dataFromColumn_v2 gives as data: /" + dataFromColumn_v2(1) + "/");
+}
+
+  // 1. For when I had an issue of data translations between locateTitleColumn, dataFromColumn, and a few other stuff.
+  // 2. For when the function wasn't changing the column, but the starting row. Pretty simple solution: just shifting the variable on getValues() worked.
+function loggerFunction_dataFromColumn(){
+  var counter = 0;
+  //This gives "Materia" correctly
+  Logger.log(sheet().getRange(1, 1).getValues().toString());
+
+  //These all correctly give data from titles 'Materia', 'tipo', 'Quehacer', etc..
+  for (counter = 1; counter <= 10; counter++){
+    Logger.log(dataFromColumn(counter));
+  }
+
+  //After modifying the proper function, this should still give the same data as the above for() loop.
+  Logger.log(dataFromColumn(locateTitleColumn("Materia")));
+  Logger.log(dataFromColumn(locateTitleColumn("Tipo")));
+  Logger.log(dataFromColumn(locateTitleColumn("Quehacer")));
+  Logger.log(dataFromColumn(locateTitleColumn("Estado")));
+  Logger.log(dataFromColumn(locateTitleColumn("Recibido")));
+  Logger.log(dataFromColumn(locateTitleColumn("Entregado")));
+  Logger.log(dataFromColumn(locateTitleColumn("Plazo")));
+  Logger.log(dataFromColumn(locateTitleColumn("Descripción")));
+  Logger.log(dataFromColumn(locateTitleColumn("")));
+  Logger.log(dataFromColumn(locateTitleColumn("Color Code")));
+}

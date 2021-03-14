@@ -1,0 +1,169 @@
+    //Column locators
+  //Numeric
+const col_color_code = locateTitleColumn("Color Code"); //this became obsolete due to the setHomeworkFormat rework.
+const col_type    = locateTitleColumn("Tipo");
+const col_status  = locateTitleColumn("Estado");
+const col_sent    = locateTitleColumn("Entregado");
+const col_deadline= locateTitleColumn("Plazo");
+const col_end     = locateTitleColumn("End") - 1; //This is used to delimit a range, giving it a -1 once, here, is better than doing it hundreds of times later.
+    //Code Optimizers (variables that act as the result from a function, to not call it every time).
+const current_date = currentDate();
+const format = getAllFormats();
+
+//Modifies the format based on the format of specified cells
+function changeFormat(){
+    //Used as counter, to keep track of what row is being modified
+  var row_depth = 0;
+    //Repeat a code for all data from the column "type", 1 by 1.
+  for (const row of dataFromColumn(col_type))
+  {
+    row_depth++;
+      //Prep the cell data to reduce repetitions
+    var status = getCellData(row_depth, col_status, "yes");
+    var sent = getCellData(row_depth, col_sent, "yes");
+    var deadline = getCellData(row_depth, col_deadline, "yes");
+      //This can be made more efficient, but currently is a need due to the 'for' loop not recognizing arrays in strings.
+    var row_type = row.toString();
+  
+// Logger.log("status: /" + status + "/ sent: /" + sent + "/ deadline: /" + deadline + "/ currentDate(): /" + currentDate() + "/");
+
+// Logger.log("/type/ = " + type + "; /row_type/ = " + row_type);
+      //Chech what that data is.
+    switch(row_type)
+    {
+        //If the type of assignment is an exam, then check its status
+      case "Evaluación":
+          //The switch that checks the status column of the homework row.
+        switch (status)
+        {
+            //And each case corresponds to a different status and color.
+          case "Aprobada":
+            //Format: pale-blue-cyan, normal text
+            setRowFormat(row_depth, col_end, format[12]);
+            break;
+
+          case "Estudiada":
+            //Format: pale-gray, normal text
+            setRowFormat(row_depth, col_end, format[13]);
+            break;
+
+          case "Estudiar":
+            //Format: gray, normal text
+            setRowFormat(row_depth, col_end, format[14]);
+            break;
+
+          case "Retomar":
+            //Format: dark violet, white & bold 'Comfortaa' text
+            setRowFormat(row_depth, col_end, format[15]);
+            break;
+
+          case "Desaprobada":
+            //Format: even darker purple, white & bold 'Comfortaa' text
+            setRowFormat(row_depth, col_end, format[16]);
+            break;
+        }
+      break;
+
+      case "TP":
+          //Checks if it has been sent already
+        if (sent == "-" || sent == "" )
+        {
+              //Being here means it hasn't been sent yet.
+            //The following 'if' checks whether the TP is inside or outside schedule.
+//Logger.log(deadline > current_date);
+          if (deadline > current_date)
+          {   //Inside deadline
+//Logger.log("Temprano; sent: /" + sent + "/ deadline: /" + deadline + "/ currentDate(): /" + current_date + "/");
+            switch(status)
+            {
+              case "Terminado":
+                //Format: pale yellow, normal text
+                setRowFormat(row_depth, col_end, format[4]);
+                break;
+              
+              case "En proceso":
+                //Format: pale skin, normal text
+                setRowFormat(row_depth, col_end, format[5]);
+                break;
+              
+              case "A comenzar":
+                //Format: light orange, normal text
+                setRowFormat(row_depth, col_end, format[6]);
+                break;
+              
+              default:
+                //Same as "A comenzar"
+                setRowFormat(row_depth, col_end, format[6]);
+                break;
+            }
+          } else {
+            switch(status)
+            {   //Outside deadline or same day
+              case "Tarde":
+                //Format: light yellow, normal text
+                setRowFormat(row_depth, col_end, format[8]);
+                break;
+              
+              case "Irrecuperable":
+                //Format: light yellow, normal text
+                setRowFormat(row_depth, col_end, format[9]);
+                break;
+              
+              default:
+                //Same as "Tarde"
+                setRowFormat(row_depth, col_end, format[8]);
+                break;
+            }
+          }    
+        } else
+        {
+              //The work has been sent.
+            //Special case
+          if (status == "A rehacer")
+          {
+            setRowFormat(row_depth, col_end, format[10]);
+          }
+            //Below is the check for being inside/outside the deadline.
+          else if (sent <= deadline)
+          {   //inside
+            switch(status)
+            {
+              case "Corregido":
+                setRowFormat(row_depth, col_end, format[2]);
+                break;
+              
+              case "Enviado":
+                setRowFormat(row_depth, col_end, format[3]);
+                break;
+            }
+          } else 
+          {   //If sent past the deadline
+            switch(status)
+            {
+              case "Envío tardío":
+                setRowFormat(row_depth, col_end, format[7]);
+                break;
+              case "Corregido":
+                setRowFormat(row_depth, col_end, format[2]);
+                break;
+            }
+          }
+        }
+        break;
+      
+      case "Extra":
+        setRowFormat(row_depth, col_end, format[18]);
+        break;
+
+      default:
+        Logger.log("Tipo: /" + row_type + "/");
+        break;
+      
+      /* For the far future: Special cases
+      case "Finished Subject":
+      case "Meeting":
+      */
+
+    }
+  }
+}
