@@ -1,9 +1,9 @@
 
 Upcoming (in order):
-- Code optimization so it doesn't take 1 second per row.
-- Setting apart and storing the last completed homework of each assignment. (part of optimization, but it'll require storing stuff across runs).
-- Adding and removing deadlines as reminders in the calendar.
-- Adding meetings as events in the calendar.
+- [x] Code optimization so it doesn't take 1 second per row.
+- [ ] Setting apart and storing the last completed homework of each assignment. (part of optimization, but it'll require storing stuff across runs).
+- [ ] Adding and removing deadlines as reminders in the calendar.
+- [ ] Adding meetings as events in the calendar.
 
 
 
@@ -11,7 +11,7 @@ Upcoming (in order):
 - 0.5.0 Modified dataFrom (Cell, Row, and Column) functions so they're less messy. This seems to also slightly speed them up, but I'm not certain of this.
 - 0.5.1 Backup of a working v2 of the setHomeworkFormat function.
 - 0.5.2 Now the setHomeworkFormat does NOT call "getCellFormat" every time it's used.
-- 0.5.3 (Upcoming) changed setHomeworkFormat to setRowFormat, which allows for more versatility.
+- 0.5.3 Changed setHomeworkFormat to setRowFormat, and made the optimization variables into global const, as they should be.
 
 0.4.0 ALPHA IS ON!
 - Now it modifies TP without any hiccups!
