@@ -1,11 +1,11 @@
 
-Upcoming (in order):
+### Upcoming (in order):
 - [x] Code optimization so it doesn't take 1 second per row.
 - [ ] Setting apart and storing the last completed homework of each assignment. (part of optimization, but it'll require storing stuff across runs).
 - [ ] Adding and removing deadlines as reminders in the calendar.
 - [ ] Adding meetings as events in the calendar.
 
-
+### Versions: (new to old)
 
 0.5.x Small optimizations.
 - 0.5.0 Modified dataFrom (Cell, Row, and Column) functions so they're less messy. This seems to also slightly speed them up, but I'm not certain of this.
