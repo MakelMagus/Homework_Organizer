@@ -1,9 +1,11 @@
 
 ### Upcoming (in order):
 - [x] Code optimization so it doesn't take 1 second per row.
-- [ ] Setting apart and storing the last completed homework of each assignment. (part of optimization, but it'll require storing stuff across runs).
-- [ ] Adding and removing deadlines as reminders in the calendar.
-- [ ] Adding meetings as events in the calendar.
+- [ ] More automation:
+  - [ ] Grabbing assignments from G-Classroom and putting them automatically.
+  - [ ] Adding and removing deadlines as reminders in the calendar.
+  - [ ] Adding meetings as events in the calendar.
+- [ ] Setting apart and storing the last completed homework of each assignment. (part of optimization, but storing data across runs is hard).
 
 ### Versions: (new to old)
 
