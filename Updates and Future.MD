@@ -9,6 +9,9 @@
 
 ### Versions: (new to old)
 
+0.6.0 True Automation Start.
+- 0.6.0 Optimized the format get/set and added proper defaults that auto-assign the status.
+----
 0.5.x Small optimizations.
 - 0.5.3 Changed setHomeworkFormat to setRowFormat, and made the optimization variables into global const, as they should be.
 - 0.5.2 Now the setHomeworkFormat does NOT call "getCellFormat" every time it's used.
