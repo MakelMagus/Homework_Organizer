@@ -1,0 +1,124 @@
+function doAbsolutelyNothing(){}
+
+  //Returns all values from the spreadsheet.
+function sheetValues(){
+  //this is janky, but just using the return messed stuff up.
+  var sheet_values = SpreadsheetApp.getActiveSheet().getDataRange().getValues();
+  return sheet_values;
+}
+
+  //Returns the sheet itself. Whatever this means, it's needed for some functions.
+function sheet(){
+    return SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+}
+
+  //Returns the number of column that has the specified title.
+function locateTitleColumn(title) {
+  for (let current_column = 1; current_column < sheet().getLastRow(); current_column++)
+  {
+    if (title == sheet().getRange(1, current_column).getValues())
+    {
+      return current_column;
+} } }
+
+  //Returns the A1 notation of a cell with specific data in a set column
+function locateCell(column, name){
+  var row = 0;
+  for (const data of dataFromColumn(column))
+  {
+    row++;
+    if (data == name)
+    {
+      return asLetter(column) + row;
+} } }
+
+  //Returns all data from a specific row and column respectively.
+  //They may be a bit more efficient than their counterparts.
+function dataFromRow(number){
+  var row_data = [];
+    //Get the last column with data
+  const last_column = sheet().getDataRange().getLastColumn();
+    //On the sheet, get, as string, the values from a range that starts on the top, and goes to the last column with data.
+  row = sheet().getRange(number, 1, 1, last_column).getValues();
+  return row_data;
+
+}
+
+function dataFromColumn(number){
+  var column_data = [];
+    //Get the last row with data
+  const last_row = sheet().getDataRange().getLastRow();
+    //From the sheet get a string with values of a range that starts on the leftmost cell, and goes to the last row with data.
+  column_data = sheet().getRange(1, number, last_row, 1).getValues();
+  return column_data;
+
+}
+  //Returns the data from a specific cell. Can be specified to return a string.
+function getCellData(row, column, asString){
+  if (asString == "yes")
+  {
+    return sheet().getRange(row, column).getValues().toString();
+  } else { return sheet().getRange(row, column).getValues(); }
+}
+
+  //Returns the date in the self-made string format of 'month'/'day', this way it can somehow be compared without issues.
+function currentDate(){
+
+  const day = new Date().getDate();
+    //For some reason month starts from 0, not 1
+  const month = new Date().getMonth() + 1;
+
+  return month + "/" + day;
+}
+
+
+
+function getCellFormat(row, column){
+  
+  let format = [];
+  let cell = sheet().getRange(row, column);
+
+  format[0] = cell.getFontColor();
+  format[1] = cell.getFontSize();
+  format[2] = cell.getFontFamily();
+  format[3] = cell.getFontLine();
+  format[4] = cell.getFontWeight();
+  format[5] = cell.getFontStyle();
+  format[6] = cell.getBackground();
+
+  return format;
+}
+
+    //Returns the entirety of the color code, as an indexed array
+function getAllFormats() {
+    //gets the column in which the format is set.
+  let column = locateTitleColumn("Color Code");
+    //gets the last row with a variable in the color code
+  let last_row = sheet().getLastRow();
+    //The (eventually) returned array.
+  let cell_format = [];
+
+  for (let row = 1; row < last_row; row++)
+  {
+    cell_format [row] = getCellFormat(row, column);
+  }
+  return cell_format;
+}
+
+function setCellsFormat(row, column, row_amount, column_amount, format = [7]){
+  
+  let cells = sheet().getRange(row, column, row_amount, column_amount);
+
+  cells.setFontColor(format[0]);
+  cells.setFontSize(format[1]);
+  cells.setFontFamily(format[2]);
+  cells.setFontLine(format[3]);
+  cells.setFontWeight(format[4]);
+  cells.setFontStyle(format[5]);
+  cells.setBackground(format[6]);
+}
+
+function setRowFormat(row, end, format = [7])
+{
+  setCellsFormat(row, 1, 1, end, format);
+}
