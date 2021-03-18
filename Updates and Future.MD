@@ -12,7 +12,7 @@
 0.6.x True Automation Start.
 - 0.6.1 Made the clasic ss constant, and a few other small in-code modifications and optimizations. <br>
 Now the program is twice as fast and worth the effort of opening the app script. <br>
-Also, the text file will no longer be updated into github, as it has no real use here.
+Also, the test.txt file will no longer be updated into github, as it has no real use here.
 - 0.6.0 Optimized the format get/set and added proper defaults that auto-assign the status.
 ----
 0.5.x Small optimizations.
