@@ -1,0 +1,185 @@
+      //---CODE OPTIMIZERS---//
+    //These are constants which equal pre-determined functions.
+    //The current order is necesary, otherwise stuff is not initialized properly. This might mean I'm not coding properly. 
+
+    //Spreadsheets
+  //Active spreadsheet
+const ss = SpreadsheetApp.getActiveSpreadsheet();
+const current_sheet = ss.getSheetByName("Tareas");
+Logger.log("Sheet set");
+  //Base Spreadsheet
+const url_base = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1Xp7Bch8NF9jZxrVSss02Pdh2BDn8P9vEfcsGwvGy1z8/edit#gid=1762804773");
+const base_sheet = url_base.getSheetByName("Tareas");
+Logger.log("Base sheet got");
+
+      //Meaningful Numbers
+  //Area delimiters
+const last_column = current_sheet.getDataRange().getLastColumn();
+const last_row = current_sheet.getDataRange().getLastRow();
+Logger.log("Ranges set. Column: /%s/, Row: /%s/",last_column,last_row);
+  //Column locators
+const col_color_code = locateTitleColumn(current_sheet, "Color Code");
+const col_subject = locateTitleColumn(current_sheet, "Materia");
+const col_type    = locateTitleColumn(current_sheet, "Tipo");
+const col_work    = locateTitleColumn(current_sheet, "Quehacer");
+const col_received= locateTitleColumn(current_sheet, "Recibido");
+const col_time    = locateTitleColumn(current_sheet, "Plazo Total (días)");
+const col_deadline= locateTitleColumn(current_sheet, "Entrega");
+const col_desc    = locateTitleColumn(current_sheet, "Descripción");
+const col_end     = locateTitleColumn(current_sheet, "End") - 1; //Delimits a range, and needs to be 1 smaller. Changed here for eficiency. 
+Logger.log("Titles set: /%s/ /%s/ /%s/ /%s/ /%s/ /%s/",col_color_code,col_type,col_work,col_received,col_time,col_end);
+  //Cell locators (to write)
+const subject = current_sheet.getRange(2, col_subject);
+const type = current_sheet.getRange(2, col_type);
+const work = current_sheet.getRange(2, col_work);
+const received = current_sheet.getRange(2, col_received);
+const deadline = current_sheet.getRange(2, col_deadline);
+const desc = current_sheet.getRange(2, col_desc);
+
+  //Base area delimiters
+const b_last_column = base_sheet.getDataRange().getLastColumn();
+const b_last_row = base_sheet.getDataRange().getLastRow();
+Logger.log("Base ranges set. Column: /%s/, Row: /%s/",b_last_column,b_last_row);
+  //Base column locators
+const b_col_subject  = locateTitleColumn(base_sheet, "Materia");
+const b_col_type     = locateTitleColumn(base_sheet, "Tipo");
+const b_col_work     = locateTitleColumn(base_sheet, "Quehacer");
+const b_col_received = locateTitleColumn(base_sheet, "Recibido");
+const b_col_deadline = locateTitleColumn(base_sheet, "Plazo");
+const b_col_desc     = locateTitleColumn(base_sheet, "Descripción");
+Logger.log("Base Titles set: /%s/ /%s/ /%s/ /%s/ /%s/",b_col_subject,b_col_work,b_col_received,b_col_deadline,b_col_desc);
+  //Base column data (attempt 2)
+let b_subject_data  = [];
+b_subject_data = getColumnData(base_sheet,b_col_subject);
+let b_type_data     = [];
+b_type_data = getColumnData(base_sheet,b_col_type);
+let b_work_data     = [];
+b_work_data = getColumnData(base_sheet,b_col_work);
+let b_received_data = [];
+b_received_data = getColumnData(base_sheet,b_col_received);
+let b_deadline_data = [];
+b_deadline_data = getColumnData(base_sheet,b_col_deadline);
+let b_desc_data     = [];
+b_desc_data = getColumnData(base_sheet,b_col_desc);
+Logger.log("All column data loaded");
+
+    //Miscellaneous
+  //Dates
+const current_date = currentDate();
+    //Formats
+  //Format Locators
+const frm_tp = locateCellColumn(current_sheet,col_color_code,"TP");
+Logger.log("frm_tp = /%s/",frm_tp);
+const frm_eval = locateCellColumn(current_sheet,col_color_code,"Evaluación");
+const frm_extra = locateCellColumn(current_sheet,col_color_code,"Extra");
+const frm_tp_v = locateCellColumn(current_sheet,col_color_code,"TP (viejo)");
+const frm_eval_v = locateCellColumn(current_sheet,col_color_code,"Evaluación (viejo)");
+const frm_extra_v = locateCellColumn(current_sheet,col_color_code,"Extra (viejo)");
+  //The format as an array
+const format = getAllFormats();
+
+Logger.log("---FINISHED CONST SET---");
+
+    /** FUNCTIONS START HERE */
+
+function doAbsolutelyNothing(){}
+
+  //Returns all values from the spreadsheet.
+function sheetValues(){
+  //this is janky, but just using the return messed stuff up.
+  var sheet_values = ss.getDataRange().getValues();
+  return sheet_values;
+}
+
+  //Returns the number of column that has the specified title. Now also requires the sheet.
+function locateTitleColumn(sheet, title) {
+  //For all columns, 
+  for (let current_column = 1; current_column <= last_column; current_column++) {
+    if (title == sheet.getRange(1, current_column).getValues()) {
+      return current_column;
+} } }
+
+  //Returns the row of a cell with specific data in a set column
+function locateCellColumn(sheet, column, content){
+  var row = 0;
+  for (const data of getColumnData(sheet, column))
+  {
+    row++;
+    if (data == content)
+    {
+      return row;
+} } }
+
+  //Returns all data from a specific row, from a specific sheet. 
+function getRowData(sheet, number){
+  var row_data = [];
+    //On the sheet, get, as string, the values from a range that starts on the top, and goes to the last column with data.
+    //I can't use the "last_column", nor "b_last_column", because how to make the program realize it has to alternate between the two?
+  row = sheet.getRange(number, 1, 1, sheet.getDataRange().getLastColumn()).getValues();
+  return row_data;
+}
+  //Returns all data from a specific column, from a specific sheet.
+function getColumnData(sheet, number){
+  var column_data = [];
+  column_data = sheet.getRange(1, number, sheet.getDataRange().getLastRow(), 1).getValues();
+  return column_data;
+}
+  //Returns the data from a specific cell, from a specific sheet
+function getCellData(sheet, row, column){
+  return sheet.getRange(row, column).getValues();
+}
+
+  //Returns the date in the self-made string format of 'month'/'day', this way it can be somewhat compared.
+function currentDate(){
+  const day = new Date().getDate();
+    //For some reason month starts from 0, not 1
+  const month = new Date().getMonth() + 1;
+  return month + "/" + day;
+}
+
+  //Gets a bunch of metadata from a cell, and stores in an array.
+function getCellFormat(row, column){
+  
+  let format = [];
+  let cell = current_sheet.getRange(row, column);
+
+  format[0] = cell.getFontColor();
+  format[1] = cell.getFontSize();
+  format[2] = cell.getFontFamily();
+  format[3] = cell.getFontLine();
+  format[4] = cell.getFontWeight();
+  format[5] = cell.getFontStyle();
+  format[6] = cell.getBackground();
+
+  return format;
+}
+
+    //Returns the entirety of the color code, as an indexed array
+function getAllFormats() {
+    //Declaration of cell_format as an array.
+  let cell_format = [];
+    //Row by row, read the cell format of the column color code
+  for (let row = 1; row < last_row; row++)
+  {
+    cell_format [row] = getCellFormat(row, col_color_code);
+  }
+  return cell_format;
+}
+
+function setCellsFormat(row, column, row_amount, column_amount, format = [7]){
+  
+  let cells = current_sheet.getRange(row, column, row_amount, column_amount);
+
+  cells.setFontColor(format[0]);
+  cells.setFontSize(format[1]);
+  cells.setFontFamily(format[2]);
+  cells.setFontLine(format[3]);
+  cells.setFontWeight(format[4]);
+  cells.setFontStyle(format[5]);
+  cells.setBackground(format[6]);
+}
+
+function setRowFormat(row, end, format = [7])
+{
+  setCellsFormat(row, 1, 1, end, format);
+}
