@@ -1,15 +1,21 @@
 
 ### Upcoming (in order):
 - [x] Code optimization so it doesn't take 1 second per row.
+- [x] Proper Date Handling.
+- [ ] Putting the Proper Date Handling to good use.
+- [ ] Unifying the Organizer script and the Exporting script, so that stuff makes more sense and you only need to press two buttons rather than 6.
 - [ ] More automation:
   - [ ] Getting assignments from G-Classroom and putting them into the sheet.
   - [ ] Adding and removing deadlines as reminders in the calendar.
   - [ ] Adding meetings as events in the calendar.
-- [ ] Setting apart and storing the last completed homework of each assignment. (part of optimization, but storing data across runs is hard).
 
 ### Versions: (new to old)
 
-0.6.x True Automation Start.
+0.7.x Dates!
+- 0.7.0 Dates now work! And quite a few changes to make that happen, and for no issues with the Exporter to occur.
+----
+0.6.x Big Optimizations.
+- 0.6.3 more optimizations sprinkled around, and began work on compatibility with the Exporter.
 - 0.6.1 Made the clasic ss constant, and a few other small in-code modifications and optimizations. <br>
 Now the program is twice as fast and worth the effort of opening the app script. <br>
 Also, the test.txt file will no longer be updated into github, as it has no real use here.
