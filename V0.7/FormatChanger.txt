@@ -1,0 +1,184 @@
+//Modifies the format of the homework row.
+function changeFormat(){
+    //Used as counter, to keep track of what row is being modified
+  let row_depth = 0;
+    //Repeat a code for all data from the column "type", 1 by 1.
+  for (const row of getColumnData(col_type))
+  {
+    row_depth++;
+        //Optimizers
+    let row_type = row.toString(); //This can be made more efficient, but is currently a need due to the 'for' loop not recognizing arrays in strings.
+
+      //Skip everything if there's no row-type.
+    if (row_type != ""){
+
+      let status = getCellData(row_depth, col_status).toString();
+          /** next 2 are slow, but needed. */
+        //These return a number of days
+      let sent = dateToDays_DM(getCellData(row_depth, col_sent).toString());
+        // let received = dateToDays_DM(getCellData(row_depth, col_received).toString()); (Currently unused)
+      let deadline = dateToDays_DM(getCellData(row_depth, col_deadline).toString());
+        
+        //Chech what type the row has.
+      switch(row_type)
+      {
+          //If the type of assignment is an exam, then check its status
+        case "Evaluación":
+            //Check the status column.
+          switch (status)
+          {
+              //And each case corresponds to a different status and color.
+            case "Aprobada":
+              //Format: pale cyan, calibri
+              setCellsFormat(row_depth, 1, 1, col_end, format[12]);
+              break;
+
+            case "Estudiada":
+              //Format: pale gray.
+              setCellsFormat(row_depth, 1, 1, col_end, format[13]);
+              break;
+
+            case "Estudiar":
+              //Format: gray, bold
+              setCellsFormat(row_depth, 1, 1, col_end, format[14]);
+              break;
+
+            case "Retomar":
+              //Format: dark violet, white & bold text
+              setCellsFormat(row_depth, 1, 1, col_end, format[15]);
+              break;
+
+            case "Desaprobada":
+              //Format: even darker purple, white & bold 'Comfortaa' text
+              setCellsFormat(row_depth, 1, 1, col_end, format[16]);
+              break;
+          }
+          break;
+
+        case "TP":
+            //Checks if it has been sent already
+          if (isNaN(sent)) {
+            Logger.log("Unsent TP");
+                //Being here means it hasn't been sent yet.
+              //The following 'if' checks whether the TP is inside or outside schedule.
+            if (deadline > current_date) {
+                //Inside deadline
+              switch(status)
+              {
+                case "Terminado":
+                  //Format: pale yellow, calibri
+                  setCellsFormat(row_depth, 1, 1, col_end, format[4]);
+                  break;
+                
+                case "En proceso":
+                  //Format: pale skin.
+                  setCellsFormat(row_depth, 1, 1, col_end, format[5]);
+                  break;
+                
+                default:
+                    //Status: "A comenzar". Format: light orange.
+                  homework_sheet.getRange(row_depth, col_status).setValue("A comenzar");
+                  setCellsFormat(row_depth, 1, 1, col_end, format[6]);
+                  break;
+              }
+              //Outside Deadline
+            } else if (deadline < current_date) {
+              switch(status)
+              {   //Outside deadline or same day
+                
+                case "Irrecuperable":
+                  //Format: light yellow.
+                  setCellsFormat(row_depth, 1, 1, col_end, format[9]);
+                  break;
+                
+                case "Tarde":
+                    //Status: "Tarde". Format: light-red, bold
+                  homework_sheet.getRange(row_depth, col_status).setValue("Tarde");
+                  setCellsFormat(row_depth, 1, 1, col_end, format[8]);
+                  break;
+              }
+            } else if (deadline == current_date)  {
+                //Status: "COMENZAR YA". Format: orange, bold "Comfortaa" text
+              homework_sheet.getRange(row_depth, col_status).setValue("COMENZAR YA");
+              setCellsFormat(row_depth, 1, 1, col_end, format[32]);
+              break;
+            }    
+          } else {
+                //The work has been sent.
+              //Special case goes first
+            if (status == "A rehacer") {
+              setCellsFormat(row_depth, 1, 1, col_end, format[10]);
+            }
+              //then it checks for the time the work was sent
+            else if (sent <= deadline) {
+                //inside
+              switch(status)
+              {
+                case "Corregido":
+                  //Format: Pale cyan, calibri
+                  setCellsFormat(row_depth, 1, 1, col_end, format[2]);
+                  break;
+
+                default:
+                    //Status: "Enviado". Format: Pale green, calibri
+                  homework_sheet.getRange(row_depth, col_status).setValue("Enviado");
+                  setCellsFormat(row_depth, 1, 1, col_end, format[3]);
+                  break;
+              }
+            } else {
+                //If sent past the deadline
+              switch(status)
+              {
+                case "Corregido":
+                  //Format: pale cyan, calibri
+                  setCellsFormat(row_depth, 1, 1, col_end, format[2]);
+                  break;
+                
+                default:
+                  //Status: "Envío tardío". Format: gray orange
+                  homework_sheet.getRange(row_depth, col_status).setValue("Envío tardío");
+                  setCellsFormat(row_depth, 1, 1, col_end, format[7]);
+                  break;
+              }
+            }
+          }
+          break;
+
+              /** REALIZAR LOS FORMATOS */
+
+        case "Extra":
+          switch(status)
+          {
+            case "Hecho":
+              //Format: pale magenta
+              setCellsFormat(row_depth, 1, 1, col_end, format[18]);
+              break;
+            case "Visto":
+              //Format: pale magenta
+              setCellsFormat(row_depth, 1, 1, col_end, format[18]);
+              break;
+            case "Atendido":
+              //Format: pale magenta
+              setCellsFormat(row_depth, 1, 1, col_end, format[18]);
+              break;
+            default:
+              //Format: pale magenta
+              setCellsFormat(row_depth, 1, 1, col_end, format[18]);
+              break;
+          }
+          break;
+        
+        default:
+          Logger.log("%s Skipped.",row_depth);
+          break;
+        
+        /* For the far future:
+        case "Finished Subject":
+        case "Meeting":
+        */
+      }
+    }
+
+    Logger.log("Row %s done.",row_depth);
+  }
+}

@@ -1,0 +1,43 @@
+//Modifies the format of the homework row.
+function changeFormat(){
+    //Used as counter, to keep track of what row is being modified
+  let row_depth = 0;
+    //Repeat a code for all data from the column "type", 1 by 1.
+  for (const row of getColumnData(current_sheet, col_type))
+  {
+    row_depth++;
+    /* //Prep the cell data to reduce repetitions.
+      --CURRENTLY NOT NEEDED--
+    let status = getCellData(row_depth, col_status).toString();
+    let sent = getCellData(row_depth, col_sent).toString();
+    let deadline = getCellData(row_depth, col_deadline).toString();
+    */
+    
+      //This can be made more efficient, but the 'for' loop doesn't seem to see strings in arrays, instead seeing objects.
+    let row_type = row.toString();
+      
+      //Chech what type the row has.
+    switch(row_type)
+    { 
+      case "TP":
+          //Format: yellow
+        setRowFormat(row_depth, col_end, format[frm_tp]);
+        break;
+
+      case "Evaluación":
+          //Format: dark/red salmon
+        setRowFormat(row_depth, col_end, format[frm_eval]);
+        break;
+      
+      case "Extra":
+        //Format: magenta
+        setRowFormat(row_depth, col_end, format[frm_extra]);
+        break;
+      
+      default:
+        Logger.log("/%s/ Skipped.",row_type);
+        break;
+
+    }
+  }
+}

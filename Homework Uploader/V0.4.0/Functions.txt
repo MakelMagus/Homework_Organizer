@@ -3,7 +3,7 @@
     //The current order is necesary, otherwise stuff is not initialized properly. This might mean I'm not coding properly. 
 
     //Spreadsheets
-  //Active spreadsheet
+  //Get, from all the Active Sheets, the one named "Tareas"
 const ss = SpreadsheetApp.getActiveSpreadsheet();
 const current_sheet = ss.getSheetByName("Tareas");
 Logger.log("Sheet set");
@@ -16,7 +16,7 @@ Logger.log("Base sheet got");
   //Area delimiters
 const last_column = current_sheet.getDataRange().getLastColumn();
 const last_row = current_sheet.getDataRange().getLastRow();
-Logger.log("Ranges set. Column: /%s/, Row: /%s/",last_column,last_row);
+Logger.log("Ranges set. Column: /%s/ Row: /%s/",last_column,last_row);
   //Column locators
 const col_color_code = locateTitleColumn(current_sheet, "Color Code");
 const col_subject = locateTitleColumn(current_sheet, "Materia");
@@ -29,6 +29,7 @@ const col_desc    = locateTitleColumn(current_sheet, "Descripción");
 const col_end     = locateTitleColumn(current_sheet, "End") - 1; //Delimits a range, and needs to be 1 smaller. Changed here for eficiency. 
 Logger.log("Titles set: /%s/ /%s/ /%s/ /%s/ /%s/ /%s/",col_color_code,col_type,col_work,col_received,col_time,col_end);
   //Cell locators (to write)
+
 const subject = current_sheet.getRange(2, col_subject);
 const type = current_sheet.getRange(2, col_type);
 const work = current_sheet.getRange(2, col_work);
@@ -45,12 +46,12 @@ const b_col_subject  = locateTitleColumn(base_sheet, "Materia");
 const b_col_type     = locateTitleColumn(base_sheet, "Tipo");
 const b_col_work     = locateTitleColumn(base_sheet, "Quehacer");
 const b_col_received = locateTitleColumn(base_sheet, "Recibido");
-const b_col_deadline = locateTitleColumn(base_sheet, "Plazo");
+const b_col_deadline = locateTitleColumn(base_sheet, "Tope");
 const b_col_desc     = locateTitleColumn(base_sheet, "Descripción");
 Logger.log("Base Titles set: /%s/ /%s/ /%s/ /%s/ /%s/",b_col_subject,b_col_work,b_col_received,b_col_deadline,b_col_desc);
   //Base column data (attempt 2)
 let b_subject_data  = [];
-b_subject_data = getColumnData(base_sheet,b_col_subject);
+b_subject_data = getColumnData(base_sheet, b_col_subject);
 let b_type_data     = [];
 b_type_data = getColumnData(base_sheet,b_col_type);
 let b_work_data     = [];
@@ -64,8 +65,12 @@ b_desc_data = getColumnData(base_sheet,b_col_desc);
 Logger.log("All column data loaded");
 
     //Miscellaneous
+const last_update = locateLastUpdate();
+Logger.log("Last Update = /%s/",last_update);
   //Dates
-const current_date = currentDate();
+const current_date = currentDateDays();
+
+
     //Formats
   //Format Locators
 const frm_tp = locateCellColumn(current_sheet,col_color_code,"TP");
@@ -91,6 +96,8 @@ function sheetValues(){
   return sheet_values;
 }
 
+      //--LOCATORS--//
+
   //Returns the number of column that has the specified title. Now also requires the sheet.
 function locateTitleColumn(sheet, title) {
   //For all columns, 
@@ -98,17 +105,37 @@ function locateTitleColumn(sheet, title) {
     if (title == sheet.getRange(1, current_column).getValues()) {
       return current_column;
 } } }
-
   //Returns the row of a cell with specific data in a set column
 function locateCellColumn(sheet, column, content){
   var row = 0;
-  for (const data of getColumnData(sheet, column))
+  const column_data = getColumnData(sheet, column);
+  for (const data of column_data)
   {
     row++;
     if (data == content)
     {
       return row;
 } } }
+  //Checks what the last updated row is
+function locateLastUpdate(){
+    //set the last_homework identifier
+  let last_homework = getCellData(current_sheet, 2, col_subject) + getCellData(current_sheet, 2, col_work);
+
+  // Logger.log("last_homework = /%s/",last_homework);
+    
+    //Compare the homework ID of each row from the base sheet
+  for (row = 7; row < b_last_row; row++)
+  {
+      //Set the row's H-ID
+    b_homework_locator = getCellData(base_sheet, row, b_col_subject) + getCellData(base_sheet, row, b_col_work);
+    // Logger.log("Homework Locator = /%s/",b_homework_locator);
+
+      //Return the row  the last uploaded homework is found.
+    if (last_homework == b_homework_locator) {
+      return row;
+} } }
+
+    //--DATA GATHERERS--//
 
   //Returns all data from a specific row, from a specific sheet. 
 function getRowData(sheet, number){
@@ -118,16 +145,24 @@ function getRowData(sheet, number){
   row = sheet.getRange(number, 1, 1, sheet.getDataRange().getLastColumn()).getValues();
   return row_data;
 }
-  //Returns all data from a specific column, from a specific sheet.
+
+  //This returns a vector with a limited size
 function getColumnData(sheet, number){
   var column_data = [];
+    //From the sheet get a string with values of a range that starts on the leftmost cell, and goes to the last row with data.
   column_data = sheet.getRange(1, number, sheet.getDataRange().getLastRow(), 1).getValues();
+  
+  column_data = column_data.filter(data => data != "");
+  
   return column_data;
 }
+
   //Returns the data from a specific cell, from a specific sheet
 function getCellData(sheet, row, column){
   return sheet.getRange(row, column).getValues();
 }
+
+    //---DATES---//
 
   //Returns the date in the self-made string format of 'month'/'day', this way it can be somewhat compared.
 function currentDate(){
@@ -135,6 +170,98 @@ function currentDate(){
     //For some reason month starts from 0, not 1
   const month = new Date().getMonth() + 1;
   return month + "/" + day;
+}
+
+function dateToDays_M_D(date = new String)
+{
+  let day = 0;
+  let month = 0;
+  let divisor = 1;
+
+  divisor = date.split("/");
+  month = monthToDays(scuffedStrToInt(divisor[0]));
+  day = scuffedStrToInt(divisor[1]);
+  return month + day;
+}
+
+function dateToDays_D_M(date = new String)
+{
+  let day = 0;
+  let month = 0;
+  let divisor = 1;
+
+  divisor = date.split("/");
+  
+  day = scuffedStrToInt(divisor[0]);
+  month = monthToDays(scuffedStrToInt(divisor[1]));
+  return month + day;
+}
+
+  //Returns the date as the amount of days.
+function currentDateDays(){
+    //gets the day
+  const day = new Date().getDate();
+    //gets the month as the number of days
+  const month = monthToDays(new Date().getMonth() + 1);
+    //return the sum
+  return month + day;
+}
+
+  //used for the scuffed date format
+function scuffedStrToInt(letter_number){
+    //WHY GOD WHYYYYYYYYYYYYYYYYY
+  switch(letter_number){
+    case "0":  return 0;
+    case "1":  return 1;
+    case "2":  return 2;
+    case "3":  return 3;
+    case "4":  return 4;
+    case "5":  return 5;
+    case "6":  return 6;
+    case "7":  return 7;
+    case "8":  return 8;
+    case "9":  return 9;
+    case "10":return 10;
+    case "11":return 11;
+    case "12":return 12;
+    case "13":return 13;
+    case "14":return 14;
+    case "15":return 15;
+    case "16":return 16;
+    case "17":return 17;
+    case "18":return 18;
+    case "19":return 19;
+    case "20":return 20;
+    case "21":return 21;
+    case "22":return 22;
+    case "23":return 23;
+    case "24":return 24;
+    case "25":return 25;
+    case "26":return 26;
+    case "27":return 27;
+    case "28":return 28;
+    case "29":return 29;
+    case "30":return 30;
+    case "31":return 31;
+  }
+}
+
+  //Turns out months aren't exactly linear, so I need to get a spefific value for the amount of days on all months, and this is the least resource-heavy way of doing it I know.
+function monthToDays(month){
+  switch(month){
+    case 1:   return 0;
+    case 2:  return 31;
+    case 3:  return 59;
+    case 4:  return 90;
+    case 5: return 120;
+    case 6: return 151;
+    case 7: return 181;
+    case 8: return 212;
+    case 9: return 243;
+    case 10:return 273;
+    case 11:return 303;
+    case 12:return 334;
+  }
 }
 
   //Gets a bunch of metadata from a cell, and stores in an array.
@@ -150,6 +277,7 @@ function getCellFormat(row, column){
   format[4] = cell.getFontWeight();
   format[5] = cell.getFontStyle();
   format[6] = cell.getBackground();
+  format[7] = cell.getHorizontalAlignment();
 
   return format;
 }
@@ -159,14 +287,14 @@ function getAllFormats() {
     //Declaration of cell_format as an array.
   let cell_format = [];
     //Row by row, read the cell format of the column color code
-  for (let row = 1; row < last_row; row++)
+  for (let row = 1; row <= 9; row++)
   {
     cell_format [row] = getCellFormat(row, col_color_code);
   }
   return cell_format;
 }
 
-function setCellsFormat(row, column, row_amount, column_amount, format = [7]){
+function setCellsFormat(row, column, row_amount, column_amount, format = [8]){
   
   let cells = current_sheet.getRange(row, column, row_amount, column_amount);
 
@@ -177,6 +305,7 @@ function setCellsFormat(row, column, row_amount, column_amount, format = [7]){
   cells.setFontWeight(format[4]);
   cells.setFontStyle(format[5]);
   cells.setBackground(format[6]);
+  cells.setHorizontalAlignment(format[7]);
 }
 
 function setRowFormat(row, end, format = [7])

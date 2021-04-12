@@ -1,0 +1,26 @@
+//--Copies the homework from my personal sheet into the top row--//
+
+function addHomework()
+{
+    //Starting from the last updated homework, copies the rest homework to their respective rows.
+  for (let row = last_update+1; row < b_last_row; row++)
+  {
+    if ((b_type_data[row] == "TP") || (b_type_data[row] == "Evaluación") || (b_type_data[row] == "Extra"))
+    {
+      current_sheet.insertRowBefore(2);
+      //Gets the values from the base sheet and pastes them to the public one
+      //In order: subject, type, work, received date, deadline, and description. 
+      subject.setValue(getCellData(base_sheet,row,b_col_subject).toString());
+      type.setValue(getCellData(base_sheet,row,b_col_type));
+      work.setValue(getCellData(base_sheet,row,b_col_work));
+      received.setValue(getCellData(base_sheet,row,b_col_received));
+      deadline.setValue(getCellData(base_sheet,row,b_col_deadline));
+      desc.setValue(getCellData(base_sheet,row,b_col_desc));
+      Logger.log("Row /%s/ added.",row);
+    } else
+    {
+      Logger.log("Row /%s/ skipped. Had /%s/ as data.",row, b_type_data[row]);
+    }
+  }
+
+}
