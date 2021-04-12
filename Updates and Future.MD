@@ -2,8 +2,8 @@
 ### Upcoming (in order):
 - [x] Code optimization so it doesn't take 1 second per row.
 - [x] Proper Date Handling.
-- [ ] Putting the Proper Date Handling to good use.
 - [ ] Unifying the Organizer script and the Exporting script, so that stuff makes more sense and you only need to press two buttons rather than 6.
+- [ ] Now that the scripts are unified, making EVERYTHING update flawlessly.
 - [ ] More automation:
   - [ ] Getting assignments from G-Classroom and putting them into the sheet.
   - [ ] Adding and removing deadlines as reminders in the calendar.
