@@ -1,0 +1,261 @@
+      /**
+       ► ► ► CLASS DEFINITIONS ◄ ◄ ◄
+       **/
+
+class _Date{
+  constructor(raw_date = new String){
+    this.date_vector = raw_date.split("/");
+    this.day = parseInt(date_vector[0]);
+    this.month = parseInt(date_vector[1]);
+
+      /* Have to add a way to work with years is the future
+    this.year = parseInt(date_vector[2]); */
+    
+    this.date = day + month;      // + (year * 365) + (year/4)
+    Logger.log("Date finished: day = /%s/ month = /%s/, and date = /%s/",this.day,this.month,this.date);
+  }
+}
+
+
+      /**
+       ► ► ► PRESET STUFF ◄ ◄ ◄
+       **/
+    /** These are constants which equal pre-determined functions.
+      * The current order is necesary, otherwise stuff is not initialized properly. This might mean I'm not coding properly. 
+      */
+
+    //Spreadsheets
+  //Personal
+const ss = SpreadsheetApp.getActiveSpreadsheet(); //Abreviattion for "SpreadSheet"
+const ps = ss.getSheetByName("Tareas"); //Abreviattion for "Personal Sheet"
+const ps_sheet_values = ss.getDataRange().getValues();
+  //Public (exporting to it)
+const ess = SpreadsheetApp.openByUrl(ScriptProperties.getProperty("exporting_url")); //Abreviattion for "Export SpreadSheet"
+const es = ess.getSheetByName("Tareas"); //Abreviattion for "Export Sheet"
+Logger.log("Sheets set: ps = /%s/, es = /%s/",ps,es);
+
+  //Range Delimiters
+const last_column = ps.getDataRange().getLastColumn();
+const last_row = ps.getDataRange().getLastRow();
+Logger.log("Ranges set. Column: /%s/ Row: /%s/",last_column,last_row);
+
+  //Title list. 
+var ps_titles = [];
+ps_titles = getRowData(ps,1);
+var es_titles = [];
+es_titles = getRowData(es,1);
+Logger.log("Titles set. ps = /%s/, es = /%s/",ps_titles, es_titles);
+
+
+    //Column locators
+  //Checks the title list and locates the indexed title.
+const col_color_code = locateContentVector(ps_titles, "Color Code");
+const col_subject = locateContentVector(ps_titles, "Materia");
+const col_type    = locateContentVector(ps_titles, "Tipo");
+const col_work    = locateContentVector(ps_titles, "Quehacer");
+const col_status  = locateContentVector(ps_titles, "Estado");
+const col_received= locateContentVector(ps_titles, "Recibido");
+const col_sent    = locateContentVector(ps_titles, "Envío");
+const col_deadline= locateContentVector(ps_titles, "Tope");
+const col_desc    = locateContentVector(ps_titles, "Descripción");
+const col_end     = locateContentVector(ps_titles, "End"); - 1; //Delimits a range, and needs to be 1 smaller. Changed here for eficiency. 
+Logger.log("Column set by name: /%s/, /%s/, /%s/, /%s/, /%s/, /%s/, /%s/, /%s/, /%s/, /%s/",col_color_code,col_subject,col_type,col_work,col_status,col_received,col_sent,col_deadline,col_desc,col_end);
+
+  //delimiter that needs a locator, it gets a rough range, then filters it, then measures the length of the filter
+const last_homework = ps.getRange(1, col_type, last_row, 1).getValues().filter(data => data != "").length();
+Logger.log("last_homework: /%s/",last_homework);
+
+    //Get the data of each column as a vector.
+  //Strings
+const subject = getColumnData(ps, col_subject);
+const type = getColumnData(ps, col_type);
+const work = getColumnData(ps, col_work);
+const status = getColumnData(ps, col_status);
+const desc = getColumnData(ps, col_desc);
+  //Dates
+const received = vectorToDate(getColumnData(ps, col_received));
+const sent = vectorToDate(getColumnData(ps, col_sent));
+const deadline = vectorToDate(getColumnData(ps, col_deadline));
+
+  //Current date
+const current_date = currentDateDays();
+Logger.log("current_date: /%s/",current_date);
+  
+  //Format stuff
+const frm_list = getFormatList(ps);
+const format = getAllFormats(ps);
+
+Logger.log("---FINISHED CONST SET---");
+
+
+      /**
+       ► ► ► FUNCTIONS ◄ ◄ ◄
+       **/
+
+function doAbsolutelyNothing(){}
+
+    //--LOCATORS--//
+
+  //Returns the position of specified data in the given vector.
+function locateContentVector(vector, content) {
+  let counter = 0;
+
+  for(const data of vector)
+  {
+    counter += 1;
+    if (data == content)
+    {
+      return counter;
+    }
+  }
+  return NaN;
+}
+
+    //--DATA GATHERERS--//
+
+  //Returns a limited vector with all data from a specific row/column.
+function getRowData(sheet, row){
+    //Get the values from a range that starts on the top, and goes to the last column with data.
+  let row_data = [];
+
+    // This has the issue of creating a redundant matrix.
+  row_data = sheet.getRange(row, 1, 1, last_column).getValues();
+
+    //In here I reduce the matrix. All other methods seem the same.
+  for (const data of row_data) {
+    row_data = data;
+  }
+  return row_data;
+}
+  //This returns a vector with a limited size
+function getColumnData(sheet, row){
+  /**
+   * Gets the values of the specified sheet, via a range() function.
+   * @param   {sheet}       sheet   The sheet you get by using any of the getSheet() in-built functions.
+   * @param   {row}         int     The number of row that you pick to get the column's data from.
+   * @return  {column_data} vector  A filtered vector that has each cell's with data, data. Any empty cell will just not be in this vector.
+   */
+    //Get the values of a range that starts on the leftmost cell, and goes to the last row with data.
+  let column_data = [];
+  column_data = sheet.getRange(1, number, last_row, 1).getValues();
+    //Filter the empty cells
+  column_data = column_data.filter(data => data != "");
+  return column_data;
+}
+  //Returns the data of a cell. This is just a re-naming to decrease visual bloating.
+function getCellData(sheet, row, column){
+  return sheet.getRange(row, column).getValue();
+}
+
+    //--DATES--//
+
+  //Transforms a vector of data_format strings, into the _Date class
+function vectorToDate(vector = []){
+  var counter = 0;
+  var new_vector = []
+    //Grabs each data the vector has, and directly tries to create a date with it.
+  for (data of vector)
+  {
+    new_vector[counter] = new _Date(data);
+    counter++;
+  }
+  
+  return new_vector;
+}
+
+  //This functions transforms "Day/month" strings into their equal amount of days. (Int)
+function dateToDays_DM(date = new String)
+{
+  let month = 0;
+  let divisor = [];
+    //Splits the received string into a vector, separating the data on each slash (/).
+  divisor = date.split("/");
+    //After that it transforms the strings into Int, and the month to days.
+  day = parseInt(divisor[0]);
+  month = monthToDays(parseInt(divisor[1]));
+  return month + day;
+}
+
+  //Returns the date as the amount of days that passed since the year's start.
+function currentDateDays(){
+    //gets the day
+  const day = new Date().getDate();
+    //gets the month as the number of days
+  const month = monthToDays(new Date().getMonth() + 1);
+    //return the sum
+  return month + day;
+}
+
+  //Turns out months aren't exactly linear, so I need to get a spefific value for the amount of days on all months, and this is the least resource-heavy way of doing it I know.
+function monthToDays(month){
+  switch(month){
+    case 1:   return 0;
+    case 2:  return 31;
+    case 3:  return 59;
+    case 4:  return 90;
+    case 5: return 120;
+    case 6: return 151;
+    case 7: return 181;
+    case 8: return 212;
+    case 9: return 243;
+    case 10:return 273;
+    case 11:return 303;
+    case 12:return 334;
+  }
+}
+
+    //--FORMATS--//
+
+  //Gets the various data from the color code.
+function getFormatList(sheet) {
+  var format_list = [];
+    //For each row
+  for (let row = 1; row < last_row; row++)
+  {
+    format_list[row] = getCellData(sheet,row,col_color_code).toString();
+  }
+  return format_list;
+}
+
+    //Returns the entirety of the color code, as an indexed array
+function getAllFormats(sheet) {
+    //Declaration of cell_format as an array.
+  let cell_format = [];
+    //Row by row, read the cell format of the column color code
+  for (let row = 1; row <= last_row; row++)
+  {
+    cell_format [row] = getCellFormat(sheet, row, col_color_code);
+  }
+  return cell_format;
+}
+
+function getCellFormat(sheet, row, column){
+  
+  let format = [];
+  let cell = sheet.getRange(row, column);
+
+  format[0] = cell.getFontColor();
+  format[1] = cell.getFontSize();
+  format[2] = cell.getFontFamily();
+  format[3] = cell.getFontLine();
+  format[4] = cell.getFontWeight();
+  format[5] = cell.getFontStyle();
+  format[6] = cell.getBackground();
+  format[7] = cell.getHorizontalAlignment();
+
+  return format;
+}
+
+function setCellsFormat(sheet, row, column, row_amount, column_amount, format = [8]){
+  
+  let cells = sheet.getRange(row, column, row_amount, column_amount);
+
+  cells.setFontColor(format[0]);
+  cells.setFontSize(format[1]);
+  cells.setFontFamily(format[2]);
+  cells.setFontLine(format[3]);
+  cells.setFontWeight(format[4]);
+  cells.setFontStyle(format[5]);
+  cells.setBackground(format[6]);
+  cells.setHorizontalAlignment(format[7]);
+}
