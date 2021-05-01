@@ -19,14 +19,15 @@
 
 ### Versions: (new to old)
 
-0.7.x Dates and Vectors!
+0.7.x Dates and extreme optimizations!
 - 0.7.2 Now the homework data is stored in column vectors, and handled from there. <br>
 This way no functions are called when checking each row's data, instead being loaded once at the start. <br>
-Also, getHomeworkData now exists again, because it tidied the code quite a bit.
+Turns out that doing this made the code nearly instantaneous after loading, and the load-time is less than 5 seconds. <br>
+Also, getHomeworkData now exists again, because it tidied the code quite a bit and turned out to not be a big deal.
 - 0.7.1 Decided to unify the exporter and personal sheets into the same script. To do that, I began modifying the way variables are handled. Backup before a big change.
 - 0.7.0 Dates now work! And quite a few changes to make that happen, and for no issues with the exporter to occur.
 ----
-0.6.x Big Optimizations.
+0.6.x Big optimizations.
 - 0.6.3 more optimizations sprinkled around, and began work on compatibility with the Exporter.
 - 0.6.1 Made the clasic ss constant, and a few other small in-code modifications and optimizations. <br>
 Now the program is twice as fast and worth the effort of opening the app script. <br>
