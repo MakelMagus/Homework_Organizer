@@ -3,7 +3,15 @@
 - [x] Code optimization so it doesn't take 1 second per row.
 - [x] Proper Date Handling.
 - [ ] Unifying the Organizer script and the Exporting script, so that stuff makes more sense and you only need to press two buttons rather than 6.
-- [ ] Now that the scripts are unified, making EVERYTHING update flawlessly.
+  - [x] Data handling that first loads all needed info, then makes changes to the sheet based on said info (makes re-ordering easier).
+  - [ ] Variable passage and re-configuration.
+  - [ ] Function passage and re-configuration.
+- [ ] Now that the scripts are unified, making the exporter prettier and more dynamic.
+  - [ ] Rows gets re-ordered based on priority:
+    - [ ] Different types use different colors schemes.
+    - [ ] The closer a deadline is, the higher it goes.
+    - [ ] A homework's priority should have a subtle increase based on its length.
+    - [ ] Higher priorities means the color scheme should be darker/more notorious.
 - [ ] More automation:
   - [ ] Getting assignments from G-Classroom and putting them into the sheet.
   - [ ] Adding and removing deadlines as reminders in the calendar.
@@ -11,8 +19,11 @@
 
 ### Versions: (new to old)
 
-0.7.x Dates!
-- 0.7.0 Dates now work! And quite a few changes to make that happen, and for no issues with the Exporter to occur.
+0.7.x Dates and Vectors!
+- 0.7.2 Now the homework data is stored in column vectors, and handled from there. <br>
+This way no functions are called when checking each row's data, instead being loaded once at the start.
+- 0.7.1 Decided to unify the exporter and personal sheets into the same script. To do that, I began modifying the way variables are handled. Backup before a big change.
+- 0.7.0 Dates now work! And quite a few changes to make that happen, and for no issues with the exporter to occur.
 ----
 0.6.x Big Optimizations.
 - 0.6.3 more optimizations sprinkled around, and began work on compatibility with the Exporter.
