@@ -20,7 +20,7 @@
 ### Versions: (new to old)
 
 0.7.x Dates and Vectors!
-- 0.7.2 Now the homework data is stored in column vectors, and handled from there. <br>
+- 0.7.2 Now the homework data is stored in column vectors, and handled from there. Also, getHomeworkData now exists again, because it tidied the code quite a bit.<br>
 This way no functions are called when checking each row's data, instead being loaded once at the start.
 - 0.7.1 Decided to unify the exporter and personal sheets into the same script. To do that, I began modifying the way variables are handled. Backup before a big change.
 - 0.7.0 Dates now work! And quite a few changes to make that happen, and for no issues with the exporter to occur.
