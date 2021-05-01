@@ -1,0 +1,279 @@
+      /**
+       ► ► ► CLASS DEFINITIONS ◄ ◄ ◄
+       **/
+
+class _Date{
+  constructor(raw_date = new String){
+    this.date_vector = [];
+    this.date_vector = raw_date.split("/");
+    this.day = parseInt(this.date_vector[0]);
+    this.month = monthToDays(parseInt(this.date_vector[1]));
+
+      /* Have to add a way to work with years is the future
+    this.year = parseInt(date_vector[2]); */
+      //Logger.log ("day vector: /%s/ month vector: /%s/",this.date_vector[0],this.date_vector[1]);
+    this.date = this.day + this.month;      // + (year * 365) + (year/4)
+      //Logger.log("date = /%s/ string = /%s/",this.date, raw_date);
+  }
+}
+
+      /**
+       ► ► ► PRESET STUFF ◄ ◄ ◄
+       **/
+    /** These are constants which equal pre-determined functions.
+      * The current order is necesary, otherwise stuff is not initialized properly. This might mean I'm not coding properly. 
+      */
+
+    //Spreadsheets
+  //Personal
+const ss = SpreadsheetApp.getActiveSpreadsheet(); //Abbreviation for "SpreadSheet"
+const ps = ss.getSheetByName("Tareas"); //Abbreviation for "Personal Sheet"
+const ps_sheet_values = ss.getDataRange().getValues();
+  //Public (exporting to it)
+const ess = SpreadsheetApp.openByUrl(ScriptProperties.getProperty("exporting_url")); //Abreviattion for "Export SpreadSheet"
+const es = ess.getSheetByName("Tareas"); //Abreviattion for "Export Sheet"
+Logger.log("Sheets set: ps = /%s/, es = /%s/",ps,es);
+
+  //Range Delimiters
+const last_column = ps.getDataRange().getLastColumn();
+const last_row = ps.getDataRange().getLastRow();
+Logger.log("Max Ranges set. Column: /%s/ Row: /%s/",last_column,last_row);
+
+  //Title list
+const ps_titles = getRowData(ps,1);
+const es_titles = getRowData(es,1);
+Logger.log("Titles set. ps = /%s/, es = /%s/",ps_titles, es_titles);
+
+    //Column locators
+  //Checks the title list and locates the indexed title.
+const col_color_code = locateContentVector(ps_titles, "Color Code")+1;
+const col_subject = locateContentVector(ps_titles, "Materia")+1;
+const col_type    = locateContentVector(ps_titles, "Tipo")+1;
+const col_work    = locateContentVector(ps_titles, "Quehacer")+1;
+const col_status  = locateContentVector(ps_titles, "Estado")+1;
+const col_received= locateContentVector(ps_titles, "Recibido")+1;
+const col_sent    = locateContentVector(ps_titles, "Envío")+1;
+const col_deadline= locateContentVector(ps_titles, "Tope")+1;
+const col_desc    = locateContentVector(ps_titles, "Descripción")+1;
+const col_end     = locateContentVector(ps_titles, "End"); //Delimits a range, and needs to be 1 smaller than usual.
+Logger.log("Column set by name: /%s/, /%s/, /%s/, /%s/, /%s/, /%s/, /%s/, /%s/, /%s/, /%s/",col_color_code,col_subject,col_type,col_work,col_status,col_received,col_sent,col_deadline,col_desc,col_end);
+
+    //Get the data of each column as a vector.
+  //Strings
+const subject = getHomeworkDataColumn(ps, col_subject);
+const type = getHomeworkDataColumn(ps, col_type);
+const work = getHomeworkDataColumn(ps, col_work);
+const status = getHomeworkDataColumn(ps, col_status);
+const desc = getHomeworkDataColumn(ps, col_desc);
+Logger.log("Data vectors set.");
+  //Dates
+const received = vectorToDate(getHomeworkDataColumn(ps, col_received));
+const sent = vectorToDate(getHomeworkDataColumn(ps, col_sent));
+const deadline = vectorToDate(getHomeworkDataColumn(ps, col_deadline));
+const current_date = currentDateDays();
+Logger.log("Date vectors set. Current date = /%s/",current_date);
+  
+  //Format stuff
+const frm_list = getFormatList(ps);
+const format = getAllFormats(ps);
+Logger.log("Formats set.");
+  //last homework
+const last_homework = work.length;
+Logger.log("Last homework = /%s/",last_homework);
+Logger.log("╪╪╪╪╪╪╪╪  FINISHED CONST SET  ╪╪╪╪╪╪╪╪");
+
+
+      /**
+       ► ► ► FUNCTIONS ◄ ◄ ◄
+       **/
+
+function doAbsolutelyNothing(){}  //Useful when working with the constant and variable being set
+
+    //--LOCATORS--//
+
+  //Returns the position of specified data in the given vector.
+function locateContentVector(vector, content) {
+  let counter = 0;
+
+    //Reads each position on the vector
+  for(const data of vector) {
+      //when the content is found, return said position.
+    if (data == content) {
+      return counter;
+    } // else { Logger.log("/%s/ != /%s/",data,content); }
+
+    counter += 1;
+  }
+  Logger.log("vector: /%s/ expected content: /%s/",vector,content);
+  return NaN;
+}
+
+    //--DATA GATHERERS--//
+
+  //Returns a vector with all data from a specific row, turned to strings.
+function getRowData(sheet, row) {
+    /** Gets the values of the specified sheet via a getRange() function. This also returns empty cells.
+     * @param   {sheet}       sheet   The sheet you get by using any of the getSheet() in-built functions.
+     * @param   {row}         int     The number of row you get the data from.
+     * @return  {row_data}    vector  A vector with the result of the getRange() function.
+     */
+  let vector = [];
+    //This returns a matrix, and I need to convert it into a vector.
+  let row_data = [];
+  row_data = sheet.getRange(row, 1, 1, last_column).getValues();
+
+  for (let data of row_data[0]) {
+    data = data.toString();
+    vector = vector.concat(data);
+  }
+  return vector;
+}
+
+  //This returns a filtered vector with the data from a column. All data is set to strings, and empty cells won't be returned.
+function getHomeworkDataColumn(sheet, column){
+  /**
+   * Gets the values of the specified sheet via a range() function, and sets them all to string. Empty cells are added as such
+   * @param   {sheet}       sheet   The sheet you get by using any of the getSheet() in-built functions.
+   * @param   {column}      int     The number of column that you pick to grab the data.
+   * @return  {column_data} vector  A filtered vector that has each cell's data.
+   */
+
+  let vector = [];
+    //Get the values of a range that starts on the leftmost cell, and goes to the last row with data. This has the weird issue of always creating a matrix, because each row is stored in a different vector.
+  let column_data = sheet.getRange(1, column, last_row, 1).getValues();
+    //And this is a way of making it into a vector.
+  for (let data of column_data) {
+    data = data.toString();
+    vector = vector.concat(data);
+  }
+    //Logger.log("vector: /%s/ column data: /%s/",vector,column_data);
+  return vector;
+}
+
+  //Returns the data of a cell. This is just a re-naming to decrease visual bloating.
+function getCellData(sheet, row, column){
+  return sheet.getRange(row, column).getValue();
+}
+
+    //--DATES--//
+
+  //Transforms a vector of data_format strings, into the _Date class
+function vectorToDate(date_vector){
+  var counter = 0;
+  var new_vector = [];
+    //Grabs each data the vector has, and directly tries to create a date with it.
+  for (data of date_vector)
+  {
+    new_vector[counter] = new _Date(data);
+      //Logger.log("Date object in vector cell %s: /%s/",counter,new_vector[counter]);
+    counter++;
+  }
+  return new_vector;
+}
+
+  //This functions transforms "Day/month" strings into their equal amount of days. (Int)
+function dateToDays_DM(date = new String)
+{
+  let month = 0;
+  let divisor = [];
+    //Splits the received string into a vector, separating the data on each slash (/).
+  divisor = date.split("/");
+    //After that it transforms the strings into Int, and the month to days.
+  day = parseInt(divisor[0]);
+  month = monthToDays(parseInt(divisor[1]));
+  return month + day;
+}
+
+  //Returns the date as the amount of days that passed since the year's start.
+function currentDateDays(){
+    //gets the day
+  const day = new Date().getDate();
+    //gets the month as the number of days
+  const month = monthToDays(new Date().getMonth() + 1);
+    //return the sum
+  return month + day;
+}
+
+  //Turns out months aren't exactly linear, so I need to get a spefific value for the amount of days on all months, and this is the least resource-heavy way of doing it I know.
+function monthToDays(month){
+  switch(month){
+    case 1:   return 0;
+    case 2:  return 31;
+    case 3:  return 59;
+    case 4:  return 90;
+    case 5: return 120;
+    case 6: return 151;
+    case 7: return 181;
+    case 8: return 212;
+    case 9: return 243;
+    case 10:return 273;
+    case 11:return 303;
+    case 12:return 334;
+  }
+}
+
+    //--FORMATS--//
+
+  //Gets the various data from the color code.
+function getFormatList(sheet) {
+  var format_list = [];
+    //For each row
+  for (let row = 1; row < last_row; row++)
+  {
+    format_list[row] = getCellData(sheet,row,col_color_code).toString();
+  }
+  return format_list;
+}
+
+    //Returns the entirety of the color code, as an indexed array
+function getAllFormats(sheet) {
+    //Declaration of cell_format as an array.
+  let cell_format = [];
+    //Row by row, read the cell format of the column color code
+  for (let row = 1; row <= last_row; row++)
+  {
+    cell_format [row] = getCellFormat(sheet, row, col_color_code);
+  }
+  return cell_format;
+}
+
+function getCellFormat(sheet, row, column){
+  
+  let format = [];
+  let cell = sheet.getRange(row, column);
+
+  format[0] = cell.getFontColor();
+  format[1] = cell.getFontSize();
+  format[2] = cell.getFontFamily();
+  format[3] = cell.getFontLine();
+  format[4] = cell.getFontWeight();
+  format[5] = cell.getFontStyle();
+  format[6] = cell.getBackground();
+  format[7] = cell.getHorizontalAlignment();
+
+  return format;
+}
+
+function setCellsFormat(sheet, row, column, row_amount, column_amount, format = [8]){
+  
+  let cells = sheet.getRange(row, column, row_amount, column_amount);
+
+  cells.setFontColor(format[0]);
+  cells.setFontSize(format[1]);
+  cells.setFontFamily(format[2]);
+  cells.setFontLine(format[3]);
+  cells.setFontWeight(format[4]);
+  cells.setFontStyle(format[5]);
+  cells.setBackground(format[6]);
+  cells.setHorizontalAlignment(format[7]);
+}
+
+function setHomeworkFormat(row,format = [8]) {
+  setCellsFormat(ps, row+1, 1, 1, col_end, format);
+}
+
+    //--OTHER MISC--//
+
+function setPsStatus(row, value = new String){
+  ps.getRange(row+1, col_status).setValue(value);
+}
