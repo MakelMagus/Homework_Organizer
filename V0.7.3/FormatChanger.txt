@@ -1,0 +1,187 @@
+//Modifies the format of the homework row.
+function changeFormat(){
+    //Repeat a code for all data from the column "type", 1 by 1.
+  for (let row_depth = 1; row_depth <= last_homework-1; row_depth++) {
+    
+      //Renaming:
+    
+    let homework = homework_list[row_depth];  //
+    let subject = homework.subject;
+    let type = homework.type;
+    let work = homework.work;
+    let status = homework.status;
+    let received = homework.received.date;
+    let sent = homework.sent.date;
+    let deadline = homework.deadline.date;
+    let desc = homework.description;
+
+      //Skip everything if there's no row-type.
+    if (homework.type != "") {
+      Logger.log("Row %s ID: %s - %s ",row_depth,subject,work);
+        //Chech what type the row has.
+      switch(type)
+      {
+          //If the type of assignment is an exam, then check its status
+        case "Evaluación":
+          Logger.log("Row %s is an exam. Its status is /%s/",row_depth,status);
+            //Check the status column.
+          switch (status)
+          {
+              //And each case corresponds to a different status and color.
+            case "Aprobada":
+              //Format: pale cyan, calibri
+              setHomeworkFormat(row_depth, format[12]);
+              break;
+
+            case "Estudiada":
+              //Format: pale gray.
+              setHomeworkFormat(row_depth, format[13]);
+              break;
+
+            case "Retomar":
+              //Format: dark violet, white & bold text
+              setHomeworkFormat(row_depth, format[15]);
+              break;
+
+            case "Desaprobada":
+              //Format: even darker purple, white & bold 'Comfortaa' text
+              setHomeworkFormat(row_depth, format[16]);
+              break;
+            
+            default:
+              //Format: gray, bold
+              setHomeworkStatus(homework,"A estudiar");
+              setHomeworkFormat(row_depth, format[14]);
+              break;
+          }
+          break;
+
+        case "TP":
+            //Checks if it has been sent already
+
+          if (isNaN(sent)) {
+            Logger.log("This TP hasn't been sent. Its deadline is /%s/ and the current date is /%s/",homework.deadline.raw_date, current_date.raw_date);
+                //Being here means it hasn't been sent yet.
+            if (isNaN(deadline)){
+              setHomeworkStatus(homework,"A comenzar");
+              setHomeworkFormat(row_depth, format[6]);
+            }
+              //The following 'if' checks whether the TP is inside or outside schedule.
+            else if (deadline > current_date.date) {
+                //Inside deadline
+              switch(status)
+              {
+                case "Terminado":
+                  //Format: pale yellow, calibri
+                  setHomeworkFormat(row_depth, format[4]);
+                  break;
+                
+                case "En proceso":
+                  //Format: pale skin.
+                  setHomeworkFormat(row_depth, format[5]);
+                  break;
+                
+                default:
+                    //Status: "A comenzar". Format: light orange.
+                  setHomeworkStatus(homework,"A comenzar");
+                  setHomeworkFormat(row_depth, format[6]);
+                  break;
+              }
+              //Outside Deadline
+            } else if (deadline < current_date.date) {
+              switch(status)
+              {   //Outside deadline or same day
+                
+                case "Irrecuperable":
+                  //Format: light yellow.
+                  setHomeworkFormat(row_depth, format[9]);
+                  break;
+                
+                default:
+                    //Status: "Tarde". Format: light-red, bold
+                  setHomeworkStatus(homework,"Tarde");
+                  setHomeworkFormat(row_depth, format[8]);
+                  break;
+              }
+            } else if (deadline == current_date.date)  {
+                //Status: "COMENZAR YA". Format: orange, bold "Comfortaa" text
+              setHomeworkStatus(homework,"COMENZAR YA");
+              setHomeworkFormat(row_depth, format[32]);
+              break;
+            }    
+          } else {
+                //The work has been sent.
+              //Special case goes first
+            if (status == "A rehacer") {
+              setHomeworkFormat(row_depth, format[10]);
+            }
+              //then it checks for the time the work was sent
+            else if (sent <= deadline) {
+                //inside deadline
+              switch(status)
+              {
+                case "Corregido":
+                  //Format: Pale cyan, calibri
+                  setHomeworkFormat(row_depth, format[2]);
+                  break;
+
+                default:
+                    //Status: "Enviado". Format: Pale green, calibri
+                  setHomeworkStatus(homework,"Enviado");
+                  setHomeworkFormat(row_depth, format[3]);
+                  break;
+              }
+            } else {
+                //If sent past the deadline
+              switch(status)
+              {
+                case "Corregido":
+                  //Format: pale cyan, calibri
+                  setHomeworkFormat(row_depth, format[2]);
+                  break;
+                
+                default:
+                  //Status: "Envío tardío". Format: gray orange
+                  setHomeworkStatus(homework,"Envío tardío");
+                  setHomeworkFormat(row_depth, format[7]);
+                  break;
+              }
+            }
+          }
+          break;
+
+              /** REALIZAR LOS FORMATOS */
+
+        case "Extra":
+          //Logger.log("I am Extra, and my type is %s",type);
+          switch(status)
+          {
+            case "Hecho":
+              //Format: pale magenta
+              setHomeworkFormat(row_depth, format[18]);
+              break;
+            case "Visto":
+              //Format: pale magenta
+              setHomeworkFormat(row_depth, format[18]);
+              break;
+            case "Atendido":
+              //Format: pale magenta
+              setHomeworkFormat(row_depth, format[18]);
+              break;
+            default:
+              //Format: pale magenta
+              setHomeworkFormat(row_depth, format[18]);
+              break;
+          }
+          break;
+        
+        default:
+          Logger.log("Type /%s/ is not normalized.",type);
+          break;
+        
+      }       //Type switch.
+    } else {
+      Logger.log("%s Skipped.",row_depth);
+    }         //Row-skipping if.
+  }           //For loop.
+}             //Function.
