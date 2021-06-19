@@ -1,0 +1,602 @@
+/**
+ * ► TO DO:
+ * 
+ *  Ignore this and begin working on an actual app.
+ */
+
+
+    /**
+     * ► ► ► CLASS DEFINITIONS ◄ ◄ ◄
+     */
+
+let object = {
+  stuff: true,
+}
+
+class _Date{
+  /**
+   * Grabs a string with the denomination day/month
+   * and turns it into the amount of days that passed
+   * since the start of the respective year.
+   */
+
+  constructor(raw_date = new String){
+    this.raw_date = raw_date;
+    this.date_vector = [];
+    this.date_vector = raw_date.split("/");
+    this.day = parseInt(this.date_vector[0]);
+    this.month = monthToDays(parseInt(this.date_vector[1]));
+
+      /* Have to add a way to work with years is the future
+    this.year = parseInt(date_vector[2]); */
+      //Logger.log ("day vector: /%s/ month vector: /%s/",this.date_vector[0],this.date_vector[1]);
+    this.date = this.day + this.month;      // + (year * 365) + (year/4)
+      //Logger.log("date = /%s/ string = /%s/",this.date, raw_date);
+  }
+}
+
+  /**
+   * BIG ISSUE WITH HOMEWORKS:
+   * The first row is NOT an assignment.
+   * How do I prevent the first row from being t-
+   * oh I just force that on the function by making the counter start at 1...
+   * 
+   * Important to keep this in mind when solving any errors.
+   */
+
+class _Assignment {
+  /**
+   * Just a way of getting a bunch of data together.
+   * Has 2 more properties than the parent, both made
+   * from math with the entered _Date.
+   * @param {string}  subject
+   * @param {string}  type
+   * @param {string}  work
+   * @param {string}  status
+   * @param {string}  description
+   * @param {_Date}   received
+   * @param {_Date}   deadline
+   * @param {_Date}   sent
+   * @param {_Format} format     
+   * @param {float}   length
+   * @param {float}   priority
+   */
+   
+   
+  constructor (subject = "", type = "", work = "", status = "", received = _Date(), sent = _Date(), deadline = _Date(), description = "", format = _Format()) {
+      //Strings
+    this.subject  = subject;
+    this.type     = type;
+    this.work     = work;
+    this.status   = status;
+    this.description = description;
+      //_Dates
+    this.received = received;
+    this.deadline = deadline;
+    this.sent     = sent;
+      //_Format
+    this.format   = format;
+
+    this.id = this.subject + " - " + this.work;
+
+    this.priority = 0;
+    
+    if (isNaN(this.deadline.date) || isNaN(this.received.date)) {
+      this.length = "-";
+    } else {
+      this.length = (this.deadline.date - this.received.date);
+    }
+    
+  }
+
+  updatePriority(current_day) {
+
+    let remaining_days = this.deadline.date - current_day;
+
+    if (remaining_days > 0 && this.length != "-") {
+      this.priority = 1 + ((this.length/2) / (remaining_days - 0.5));
+      //Logger.log("Considering this work is due in /%s/ days and it had /%s/ days to be done, its priority is /%s/",remaining_days,this.length,this.priority);
+    } else if (!isNaN(remaining_days)) {
+      this.priority = remaining_days;
+    } else {
+      this.priority = null;
+      //Logger.log("Considering this work is past /%s/ days, its priority is /%s/",remaining_days,this.priority);
+    }
+
+     // Logger.log("Assignment /%s/ has priority: /%s/",this.id, this.priority);
+  }
+
+  personalReFormat() {
+    Logger.log("Assignment /%s/",this.id);
+
+    switch(this.type){
+      //checks whether the homework is an exam, something extra, or actual homework.
+      case "Evaluación":
+        switch(this.status){
+            //And each case corresponds to a different status and color.
+          case "Aprobada":
+            //Format: calibri, #c0e4f0
+            this.format = format_list[2];
+            break;
+
+          case "Tomada":
+            //Format: calibri, #fce5cd
+            this.format = format_list[3];
+            break;
+
+          case "Estudiada":
+            //Format: arial, #f9cb9c
+            this.format = format_list[4];
+            break;
+
+          case "Retomar":
+            //Format: arial, #d5a6bd
+            this.format = format_list[7];
+            break;
+
+          case "Desaprobada":
+            //Format: roboto mono, #e06666
+            this.format = format_list[9];
+            break;
+          
+          default:
+            //Format: arial, #f9cb9c
+            this.status = "A Estudiar"
+            this.format = format_list[5];
+            break;
+        }
+
+        break;
+      
+      case "TP":
+          //Checks if it has been sent already
+        if (isNaN(this.sent.date)) {
+          
+          Logger.log("This TP hasn't been sent. Its deadline is /%s/ and the current date is /%s/",this.deadline.raw_date, current_date.raw_date);
+
+          if (isNaN(this.deadline.date)) {  //Is there even a deadline?
+            this.status = "A comenzar";
+              //Format: arial, #f9cb9c (neutral)
+            this.format = format_list[5];
+
+          } else if (this.deadline.date > current_date.date) { //If it's inside the deadline
+              //Inside deadline
+            switch(this.status)
+            {
+              case "En proceso":
+                //Format: pale skin.
+                this.format = format_list[4];
+                break;
+              
+              default:
+                  //Status: "A comenzar". Format: light orange.
+                this.status = "A comenzar";
+                this.format = format_list[5];
+                break;
+            }
+            //Outside Deadline
+          } else if (this.deadline.date < current_date.date) {//Past deadline
+            switch(this.status)
+            {   
+              case "Irrecuperable":
+                //Format: light yellow.
+                this.format = format_list[10];
+                break;
+              
+              default:
+                  //Status: "Tarde". Format: light-red, bold
+                this.status = "Tarde";
+                this.format = format_list[9];
+                break;
+            }
+          } else if (this.deadline.date == current_date.date)  {
+              //Status: "COMENZAR YA". Format: orange, bold "Comfortaa" text
+            this.status = "COMENZAR YA";
+            this.format = format_list[6];
+            break;
+          }    
+        } else {
+              //The work has been sent.
+          switch (this.status)
+          {
+            case "A rehacer":
+              this.format = format_list[7];
+              break;
+            
+            case "Corregido":
+              this.format = format_list[2];
+              break;
+            
+            default:
+              if (this.sent.date <= this.deadline.date){
+                this.status = "Enviado";
+                this.format = format_list[3];
+              } else {
+                this.status = "Envío tardío";
+                this.format = format_list[8];
+              }
+              break;
+          }
+        }
+        break;
+      
+      case "Extra":
+        this.format = format_list[12];
+        break;
+      
+      default:
+        Logger.log("Status /%s/ is not normalized",this.status);
+        break;
+    }           //End of type switch
+  }             //End of Reformat method
+}               //End of class
+
+class _Format {
+  constructor(name, format_array = [8]){
+    this.format_name  = name;
+    this.font_color   = format_array[0];
+    this.font_size    = format_array[1];
+    this.font_family  = format_array[2];
+    this.font_line    = format_array[3];
+    this.font_weight  = format_array[4];
+    this.font_style   = format_array[5];
+    this.background   = format_array[6];
+    this.horizontal_alignment = format_array[7];
+  }
+}
+
+      /**
+       ► ► ► PRESET STUFF ◄ ◄ ◄
+       **/
+    /** These are constants which equal pre-determined functions.
+      * The current order is necesary, otherwise stuff is not initialized properly. This might mean I'm not coding properly. 
+      */
+
+    //Spreadsheets
+  //Personal
+const ss = SpreadsheetApp.getActiveSpreadsheet(); //Abbreviation for "SpreadSheet"
+const ps = ss.getSheetByName("Tareas"); //Abbreviation for "Personal Sheet"
+Logger.log("Sheet set.");
+
+  //Range Delimiters
+const last_column = ps.getDataRange().getLastColumn();
+const last_row = ps.getDataRange().getLastRow();
+Logger.log("Max Ranges set. Column: /%s/ Row: /%s/",last_column,last_row);
+
+  //Title list
+const title_list = getRowData(ps,1);
+Logger.log("Titles got: /%s/",title_list);
+
+  //Column locations list
+  //At each step, checks the title list to locate the indexed title
+  //as a number which later is used to administrate data.
+  //It's probably useless and/or optimizable, but right now it helps
+const columns = {
+  subject:    locateContentVector(title_list, "Materia")+1,
+  type:       locateContentVector(title_list, "Tipo")+1,
+  work:       locateContentVector(title_list, "Quehacer")+1,
+  status:     locateContentVector(title_list, "Estado")+1,
+  received:   locateContentVector(title_list, "Recibido")+1,
+  sent:       locateContentVector(title_list, "Envío")+1,
+  deadline:   locateContentVector(title_list, "Tope")+1,
+  desc:       locateContentVector(title_list, "Descripción")+1,
+  end:        locateContentVector(title_list, "End"),           /* This is the only exception: it's used in range() stuff */
+  color_code: locateContentVector(title_list, "Color Code")+1
+}
+Logger.log("Object Column created.");
+
+
+  //Format stuff
+const fm_list = getColumnData(ps, columns.color_code); //Currently unused, but might come in handy when making the formatting pseudo-automatic.
+const format_list = createFormatList(ps, columns.color_code);
+Logger.log("Formats set.");
+
+    //Get the data of each column as a vector.
+const column_vector = {
+    //Strings
+  subject: getColumnData(ps, columns.subject),
+  type: getColumnData(ps, columns.type),
+  work: getColumnData(ps, columns.work),
+  status: getColumnData(ps, columns.status),
+  desc: getColumnData(ps, columns.desc),
+    //Dates
+  received: vectorToDate(getColumnData(ps, columns.received)),
+  sent: vectorToDate(getColumnData(ps, columns.sent)),
+  deadline: vectorToDate(getColumnData(ps, columns.deadline))
+}
+Logger.log("Object column_vector set.");
+
+  //The Real-life date from which a few math are made.
+const current_date = currentDate()
+Logger.log("Current date = /%s/",current_date);
+
+const assignment_list = createAssignmentList(
+  column_vector.subject,
+  column_vector.type,
+  column_vector.work,
+  column_vector.status,
+  column_vector.received,
+  column_vector.sent,
+  column_vector.deadline,
+  column_vector.desc,
+  format_list);
+
+Logger.log("assignment_list set.");
+
+  //last assignment
+const last_assignment = column_vector.work.length;
+Logger.log("Last homework = /%s/",last_assignment);
+
+Logger.log("╪╪╪╪╪╪╪╪  SETUP FINISHED  ╪╪╪╪╪╪╪╪");
+
+
+      /**
+       ► ► ► FUNCTIONS ◄ ◄ ◄
+       **/
+
+function doAbsolutelyNothing(){}  //Useful when working with the constant and variable being set
+
+    //--DATA GATHERERS--//
+
+  //Returns the position of specified data in the given vector.
+function locateContentVector(vector, content) {
+  let counter = 0;
+
+    //Reads each position on the vector
+  for(const data of vector) {
+      //when the content is found, return said position.
+    if (data == content) {
+      return counter;
+    } // else { Logger.log("/%s/ != /%s/",data,content); }
+
+    counter += 1;
+  }
+  Logger.log("vector: /%s/ expected content: /%s/",vector,content);
+  return NaN;
+}
+
+  //Returns a vector with all data from a specific row, turned to strings.
+function getRowData(sheet, row) {
+    /** Gets the values of the specified sheet via a getRange() function. This also returns empty cells.
+     * @param   {sheet}       sheet   The sheet you get by using any of the getSheet() in-built functions.
+     * @param   {row}         int     The number of row you get the data from.
+     * @return  {row_data}    vector  A vector with the result of the getRange() function.
+     */
+  let vector = [];
+    //This returns a matrix, and I need to convert it into a vector.
+  let row_data = [];
+  row_data = sheet.getRange(row, 1, 1, last_column).getValues();
+    //This is the way of transforming it into a vector. The [0] is required because I need to iterate over the row.
+  for (let data of row_data[0]) {
+    data = data.toString();
+    vector = vector.concat(data);
+  }
+  return vector;
+}
+
+  //Returns a vector with the data from a columns. All data is set to strings.
+function getColumnData(sheet, column){
+  /**
+   * Gets the values of the specified sheet via a range() function, and sets them all to string. Empty cells are added as such
+   * @param   {sheet}       sheet   The sheet you get by using any of the getSheet() in-built functions.
+   * @param   {column}      int     The number of column that you pick to grab the data.
+   * @return  {column_data} vector  A filtered vector that has each cell's data.
+   */
+
+  let vector = [];
+    //Get the values of a range that starts on the highest cell, and goes to the lowest active one. Because it always returns a matrix, I need to transform it next.
+  let column_data = sheet.getRange(1, column, last_row, 1).getValues();
+    //And this is a way of making it into a vector.
+  for (let data of column_data) {
+    data = data.toString();
+    vector = vector.concat(data);
+  }
+    //Logger.log("vector: /%s/ column data: /%s/",vector,column_data);
+  return vector;
+}
+
+    //--DATES--//
+
+  //Transforms a vector of data_format strings, into the _Date class
+function vectorToDate(date_vector){
+  var counter = 0;
+  var new_vector = [];
+    //Grabs each data the vector has, and directly tries to create a date with it.
+  for (data of date_vector)
+  {
+    new_vector[counter] = new _Date(data);
+      //Logger.log("Date object in vector cell %s: /%s/",counter,new_vector[counter]);
+    counter++;
+  }
+  return new_vector;
+}
+
+  //This functions transforms "Day/month" strings into their equal amount of days. (Int)
+function dateToDays_DM(date = new String)
+{
+  let month = 0;
+  let divisor = [];
+    //Splits the received string into a vector, separating the data on each slash (/).
+  divisor = date.split("/");
+    //After that it transforms the strings into Int, and the month to days.
+  day = parseInt(divisor[0]);
+  month = monthToDays(parseInt(divisor[1]));
+  return month + day;
+}
+
+  //Returns a _Date object with the current date.
+function currentDate(){
+    //gets the day
+  const day = new Date().getDate();
+    //gets the month as the number of days
+  const month = new Date().getMonth() + 1;
+    //Return a _Date object
+  return new _Date(day + "/" + month);
+}
+
+  //Turns out months aren't exactly linear, so I need to get a spefific value for the amount of days on all months, and this is the least resource-heavy way of doing it I know.
+function monthToDays(month){
+  /**
+   * From a number between 1 and 12, return the amount
+   * of days being in said month implies have passed in
+   * a year.
+   */
+  switch(month){
+    case 1:   return 0;
+    case 2:  return 31;
+    case 3:  return 59;
+    case 4:  return 90;
+    case 5: return 120;
+    case 6: return 151;
+    case 7: return 181;
+    case 8: return 212;
+    case 9: return 243;
+    case 10:return 273;
+    case 11:return 303;
+    case 12:return 334;
+  }
+}
+
+    //--FORMATS--//
+
+function getCellFormat(sheet, row, column){
+  
+  let format = [];
+  let cell = sheet.getRange(row, column);
+
+  format[0] = cell.getFontColor();
+  format[1] = cell.getFontSize();
+  format[2] = cell.getFontFamily();
+  format[3] = cell.getFontLine();
+  format[4] = cell.getFontWeight();
+  format[5] = cell.getFontStyle();
+  format[6] = cell.getBackground();
+  format[7] = cell.getHorizontalAlignment();
+
+  return format;
+}
+
+function createFormatList(sheet, column) {
+  /**
+   * Creates and returns a very specific list of _Format objects.
+   * @param {array} name_list     A list of strings gathered from the columns.
+   * @param {array} format_list   The returned list of _Format objects.
+   */
+
+  let name_list = getColumnData(sheet, column);
+    //Declaration of cell_format as an array.
+  let format_list = [];
+    //Row by row, read the cell format of the column color code.
+    //This is unoptimized because getCellFormat (an inherently slow function) runs many times.
+  for (let row = 1; row <= last_row; row++)
+  {
+    format_list [row] = new _Format(name_list[row], getCellFormat(sheet, row, column));
+  }
+
+  return format_list;
+}
+
+function bound(min, max, value){
+  if (value > max){
+    return max;
+  }
+  if (value < min){
+    return min;
+  }
+  return value;
+}
+
+    //--HOMEWORK OBJECT MANIPULATORS--//
+
+function createAssignmentList(subject = [], type = [], work = [], status = [], received = [], sent = [], deadline = [], desc = [], format = []){
+  /**
+   * Creates a vector of objects from the required properties.
+   * @param   {assignment_list} vector    The vector each object is loaded onto.
+   * @param   {counter}         int       The counter for the for() function.
+   */
+  let assignment_list = [];
+    //This for loop just defines the object as is.
+  for (let counter = 1; counter < subject.length; counter++){
+    assignment_list[counter] = new _Assignment(subject[counter],type[counter],work[counter],status[counter],received[counter],sent[counter],deadline[counter],desc[counter],format[counter]);
+    
+    assignment_list[counter].updatePriority(current_date.date);
+  }
+  return assignment_list;
+}
+
+function sortAssignmentList(list = []){
+  /**
+   * Takes a vector of _Assignment and reorders it based on
+   * their priority (high -> low).
+   * _Assignments of type "Extra" are sorted to the bottom.
+   */
+
+  let counter = 1;
+  let extra_list_counter = 0;
+  let extra_list = [];
+
+
+  //Logger.log("/%s/ =? /%s/",typeof(list[counter]),typeof(object));
+
+  while (typeof(list[counter]) == typeof(object)){
+    list[counter].updatePriority(current_date.date);
+    if (list[counter].type == "Extra"){
+      extra_list = extra_list.concat(list[counter]);
+      Logger.log("/%s/ saved as Extra",extra_list[extra_list_counter].id);
+      extra_list_counter += 1;
+      //Logger.log("/%s/ removed from base list",list[counter].id);
+      list.splice(counter,1);
+      //Logger.log("/%s/ now occupies that place",list[counter]);
+    } else {
+      counter += 1;
+    }
+  }
+
+  list.sort(function compareFunction(a,b) {
+    Logger.log("A Type = /%s/ B Type = /%s/ • Returned %s",a.type, b.type, a.priority - b.priority);
+    return a.priority - b.priority;
+  });
+  list = extra_list.concat(list);
+  list.reverse();
+  return list;
+  }
+
+    //--DATA ASSIGNERS--//
+
+function printFormatToRow(sheet, row, assignment){
+  cells = sheet.getRange(row+1, 1, 1, 8);
+  
+  cells.setFontColor( assignment.format.font_color);
+  cells.setFontSize( assignment.format.font_size);
+  cells.setFontFamily( assignment.format.font_family);
+  cells.setFontStyle( assignment.format.font_style);
+  cells.setFontWeight( assignment.format.font_weight);
+  cells.setFontLine( assignment.format.font_line);
+  cells.setHorizontalAlignment( assignment.format.horizontal_alignment);
+  cells.setBackground( assignment.format.background);
+}
+
+function printTextToRow(sheet, row, assignment = _Assignment, personal){
+  true_row = row+1;
+
+  if (personal == true){
+    sheet.getRange(true_row,1).setValue(assignment.subject);
+    sheet.getRange(true_row,2).setValue(assignment.type);
+    sheet.getRange(true_row,3).setValue(assignment.work);
+    sheet.getRange(true_row,4).setValue(assignment.status);
+    sheet.getRange(true_row,5).setValue(assignment.received.raw_date);
+    sheet.getRange(true_row,6).setValue(assignment.sent.raw_date);
+    sheet.getRange(true_row,7).setValue(assignment.deadline.raw_date);
+    sheet.getRange(true_row,8).setValue(assignment.length);
+    sheet.getRange(true_row,9).setValue(assignment.description);
+  } else {
+    sheet.getRange(true_row,1).setValue(assignment.subject);
+    sheet.getRange(true_row,2).setValue(assignment.type);
+    sheet.getRange(true_row,3).setValue(assignment.work);
+    sheet.getRange(true_row,4).setValue(assignment.received.raw_date);
+    sheet.getRange(true_row,5).setValue(assignment.deadline.raw_date);
+    sheet.getRange(true_row,6).setValue(assignment.length);
+    sheet.getRange(true_row,7).setValue(assignment.description);
+    sheet.getRange(true_row,8).setValue(assignment.priority);
+  }
+}

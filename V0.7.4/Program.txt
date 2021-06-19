@@ -1,0 +1,9 @@
+function organize() {
+  var counter = 0;
+
+  for (counter = 1; counter < last_assignment; counter += 1){
+    assignment_list[counter].reFormat();
+  }
+
+  publish(ScriptProperties.getProperty("exporting_url"), assignment_list);
+}

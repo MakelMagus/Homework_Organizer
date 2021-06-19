@@ -1,0 +1,48 @@
+/**
+ * TO DO:
+ * Change the format set to a method on the _Assignment object.
+ */
+
+
+
+function publish(url, assignment_list = [])
+{
+    //Sheets
+  const ess = SpreadsheetApp.openByUrl(url); //Abreviattion for "Export SpreadSheet"
+  const es = ess.getSheetByName("Tareas"); //Abreviattion for "Export Sheet"
+    
+  const ral = assignment_list; //raw assignment list
+  
+  const sal = sortAssignmentList(assignment_list);  //sorted assignment list
+  
+  var row = 1;
+
+  
+  Logger.log("sal type = /%s/ object type = /%s/",typeof(sal[row]),typeof(object));
+    //Repeat as long as the list has an object inside.
+  while(typeof(sal[row]) == typeof(object)){
+        
+      //Set the format, based on type, then priority
+    if (sal[row].type == "Extra"){
+      sal[row].format = format_list[12];
+    } else {
+      if (sal[row].priority < 0) {
+        sal[row].format = format_list[3];
+      } else if (sal[row].priority < 2) {
+        sal[row].format = format_list[4];
+      } else if (sal[row].priority < 3) {
+        sal[row].format = format_list[5];
+      } else {
+        sal[row].format = format_list[6];
+      }
+    }
+    
+    printTextToRow(es,row,sal[row]);
+    printFormatToRow(es,row,sal[row]);
+
+    Logger.log("Assignment %s exported.",row);
+
+    row++;
+  }
+
+}

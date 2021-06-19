@@ -1,0 +1,27 @@
+function organize(assignments = []) {
+  let counter = 0;
+  let cells;
+
+  
+    //change the format
+  for (counter = 1; counter < last_assignment; counter += 1){
+    assignments[counter].personalReFormat();
+  }
+  Logger.log("╪╪╪╪╪╪╪╪  PREFORMAT DONE  ╪╪╪╪╪╪╪╪");
+
+    //Publish to self (just reformat)
+  for (counter = 1; counter < last_assignment; counter += 1){
+    printFormatToRow(ps, counter,assignments[counter]);
+    printTextToRow(ps, counter, assignments[counter]);
+  }
+  Logger.log("╪╪╪╪╪╪╪╪  SELF-PUBLISHED  ╪╪╪╪╪╪╪╪");
+
+    //Publish to public
+  publish(ScriptProperties.getProperty("exporting_url"), assignments);
+
+  Logger.log("╪╪╪╪╪╪╪╪  PUBLIC PUBLISH  ╪╪╪╪╪╪╪╪");
+}
+
+function main() {
+  organize(assignment_list);
+}
