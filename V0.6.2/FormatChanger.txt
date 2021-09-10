@@ -1,0 +1,157 @@
+//Modifies the format of the homework row.
+function changeFormat(){
+    //Used as counter, to keep track of what row is being modified
+  let row_depth = 0;
+    //Repeat a code for all data from the column "type", 1 by 1.
+  for (const row of getColumnData(col_type))
+  {
+    row_depth++;
+      //Prep the cell data to reduce repetitions
+    let status = getCellData(row_depth, col_status).toString();
+    let sent = getCellData(row_depth, col_sent).toString();
+    let deadline = getCellData(row_depth, col_deadline).toString();
+      //This can be made more efficient, but currently is a need due to the 'for' loop not recognizing arrays in strings.
+    let row_type = row.toString();
+      
+      //Chech what type the row has.
+    switch(row_type)
+    {
+        //If the type of assignment is an exam, then check its status
+      case "Evaluación":
+          //Check the status column.
+        switch (status)
+        {
+            //And each case corresponds to a different status and color.
+          case "Aprobada":
+            //Format: pale cyan, calibri
+            setRowFormat(row_depth, col_end, format[12]);
+            break;
+
+          case "Estudiada":
+            //Format: pale gray.
+            setRowFormat(row_depth, col_end, format[13]);
+            break;
+
+          case "Estudiar":
+            //Format: gray, bold
+            setRowFormat(row_depth, col_end, format[14]);
+            break;
+
+          case "Retomar":
+            //Format: dark violet, white & bold text
+            setRowFormat(row_depth, col_end, format[15]);
+            break;
+
+          case "Desaprobada":
+            //Format: even darker purple, white & bold 'Comfortaa' text
+            setRowFormat(row_depth, col_end, format[16]);
+            break;
+        }
+        break;
+
+      case "TP":
+          //Checks if it has been sent already
+        if (sent == "-" || sent == "" )
+        {
+              //Being here means it hasn't been sent yet.
+            //The following 'if' checks whether the TP is inside or outside schedule.
+          if (deadline > current_date)
+          {   //Inside deadline
+            switch(status)
+            {
+              case "Terminado":
+                //Format: pale yellow, calibri
+                setRowFormat(row_depth, col_end, format[4]);
+                break;
+              
+              case "En proceso":
+                //Format: pale skin.
+                setRowFormat(row_depth, col_end, format[5]);
+                break;
+              
+              default:
+                  //Status: "A comenzar". Format: light orange.
+                homework_sheet.getRange(row_depth, col_status).setValue("A comenzar");
+                setRowFormat(row_depth, col_end, format[6]);
+                break;
+            }
+          } else if (deadline < current_date){
+            switch(status)
+            {   //Outside deadline or same day
+              case "Irrecuperable":
+                //Format: light yellow.
+                setRowFormat(row_depth, col_end, format[9]);
+                break;
+              
+              default:
+                  //Status: "Tarde". Format: light-red, bold
+                homework_sheet.getRange(row_depth, col_status).setValue("Tarde");
+                setRowFormat(row_depth, col_end, format[8]);
+                break;
+            }
+          } else {
+              //Status: "COMENZAR YA". Format: orange, bold "Comfortaa" text
+            homework_sheet.getRange(row_depth, col_status).setValue("COMENZAR YA");
+            setRowFormat(row_depth, col_end, format[32]);
+            break;
+          }    
+        } else
+        {
+              //The work has been sent.
+            //Special case
+          if (status == "A rehacer")
+          {
+            setRowFormat(row_depth, col_end, format[10]);
+          }
+            //Below is the check for being inside/outside the deadline.
+          else if (sent <= deadline)
+          {   //inside
+            switch(status)
+            {
+              case "Corregido":
+                //Format: Pale cyan, calibri
+                setRowFormat(row_depth, col_end, format[2]);
+                break;
+
+              default:
+                  //Status: "Enviado". Format: Pale green, calibri
+                homework_sheet.getRange(row_depth, col_status).setValue("Enviado");
+                setRowFormat(row_depth, col_end, format[3]);
+                break;
+            }
+          } else 
+          {   //If sent past the deadline
+            switch(status)
+            {
+              case "Corregido":
+                //Format: pale cyan, calibri
+                setRowFormat(row_depth, col_end, format[2]);
+                break;
+              
+              default:
+                //Status: "Envío tardío". Format: gray orange
+                homework_sheet.getRange(row_depth, col_status).setValue("Envío tardío");
+                setRowFormat(row_depth, col_end, format[7]);
+                break;
+            }
+          }
+        }
+        break;
+      
+      case "Extra":
+        //Format: pale magenta/purple
+        setRowFormat(row_depth, col_end, format[18]);
+        break;
+
+      default:
+        Logger.log("Tipo: /" + row_type + "/");
+        break;
+      
+      /* For the far future:
+      case "Finished Subject":
+      case "Meeting":
+      */
+
+    }
+  }
+}

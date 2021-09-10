@@ -1,0 +1,6 @@
+function organize() {
+    //Adds the homework to the sheet
+  addHomework();
+    //Changes its format
+  changeFormat();
+}
